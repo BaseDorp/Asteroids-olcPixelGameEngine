@@ -85,16 +85,18 @@ public:
 		//DrawTriangle(player.x + );
 		DrawWireFrameModel(player.vertices, player.x, player.y, player.angle);
 		
-		for (auto &a : Asteroids)
+		for (auto a : Asteroids)
 		{
 			// Update positions
 			a->x += a->dx * fElapsedTime;
 			a->y += a->dy * fElapsedTime;
-			a->angle += 2.0f * fElapsedTime; // TODO change this to a variable
+			//a->angle += 2.0f * fElapsedTime; // TODO change this to a variable
 			WrapCoordinates(a->x, a->y, a->x, a->y);
 
 			// draws the pixels
 			DrawWireFrameModel(a->vertices, a->x, a->y, a->angle, a->size);
+			DrawString(0.0f, 0.0f, std::to_string(a->angle));
+			DrawString(0.0f, 50.0f, std::to_string(player.angle));
 		}
 
 		// Asteroids created after colliding with a bullet
@@ -212,8 +214,8 @@ public:
 		for (int i = 0; i < verts; i++)
 		{
 			// Multiplies each vertex
-			vecTransformedCoordinates[i].first = vecModelCoordinates[i].first * cosf(player.angle) - vecModelCoordinates[i].second * sinf(player.angle);
-			vecTransformedCoordinates[i].second = vecModelCoordinates[i].first * sinf(player.angle) + vecModelCoordinates[i].second * cosf(player.angle);
+			vecTransformedCoordinates[i].first = vecModelCoordinates[i].first * cosf(r) - vecModelCoordinates[i].second * sinf(r);
+			vecTransformedCoordinates[i].second = vecModelCoordinates[i].first * sinf(r) + vecModelCoordinates[i].second * cosf(r);
 		}
 
 		// Scale

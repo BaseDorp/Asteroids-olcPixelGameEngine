@@ -24,14 +24,14 @@
     <ClCompile Include="Game.cpp">
       <Filter>Source Files\Asteroids</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Asteroid.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Asteroids</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Source Files\Asteroids</Filter>
     </ClCompile>
     <ClCompile Include="SpaceObject.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Asteroids</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

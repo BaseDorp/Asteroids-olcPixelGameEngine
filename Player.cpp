@@ -9,8 +9,8 @@ Player::Player()
 		{2.5f, 2.5f}
 	};
 
-	float x, y, dx, dy, angle = 0.0f;
-	int shotsFired = 0;
+	x, y, dx, dy, angle = 0.0f;
+	shotsFired = 0;
 	bDead = false;
 }
 
@@ -19,11 +19,11 @@ void Player::UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime)
 	// Steer the player
 	if (Instance->GetKey(olc::Key::LEFT).bHeld)
 	{
-		angle -= 5.0f * fElapsedTime;
+		this->angle -= 5.0f * fElapsedTime;
 	}
 	if (Instance->GetKey(olc::Key::RIGHT).bHeld)
 	{
-		angle += 5.0f * fElapsedTime;
+		this->angle += 5.0f * fElapsedTime;
 	}
 
 	// Thrust
