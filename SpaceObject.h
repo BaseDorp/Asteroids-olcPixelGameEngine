@@ -1,6 +1,8 @@
 #pragma once
+
 class SpaceObject
 {
+public:
 	float x;
 	float y;
 	float dx;

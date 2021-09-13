@@ -1,7 +1,8 @@
 #pragma once
 #include <vector>
+#include "SpaceObject.h"
 
-class Asteroid
+class Asteroid : SpaceObject
 {
 public:
 	std::vector<std::pair<float, float>> vertices;
@@ -11,7 +12,9 @@ public:
 	float dx, dy;
 	float angle;
 	float size;
+	float spinRate;
 
 	Asteroid();
+	void SplitAsteroid();
 };
 

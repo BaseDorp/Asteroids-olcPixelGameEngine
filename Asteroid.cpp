@@ -21,3 +21,8 @@ void Asteroid::CreateAsteroid()
 		vertices.push_back(std::make_pair(radius * sinf(a), radius * cos(a)));
 	}
 }
+
+void Asteroid::SplitAsteroid()
+{
+
+}

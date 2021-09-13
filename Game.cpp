@@ -2,6 +2,7 @@
 #include "olcPixelGameEngine.h"
 #include "Player.h"
 #include "Asteroid.h"
+#include "SpaceObject.h"
 
 class Example : public olc::PixelGameEngine
 {
@@ -21,12 +22,12 @@ private:
 	//};
 
 	std::vector<Asteroid*> Asteroids;
-	//std::vector<SpaceObject> Bullets;
+	std::vector<SpaceObject> Bullets;
 	Player player;
 	int Score = 0;
 
-	std::vector<std::pair<float, float>> vecPlayerShip;
-	std::vector<std::pair<float, float>> vecAsteroids;
+	/*std::vector<std::pair<float, float>> vecPlayerShip;
+	std::vector<std::pair<float, float>> vecAsteroids;*/
 
 public:
 	bool OnUserCreate() override // Start
@@ -38,17 +39,7 @@ public:
 			{2.5f, 2.5f}
 		};
 
-		ResetGame();
-		//Asteroids.push_back(new Asteroid());
-
-		//// creating an asteroid of random size
-		//int verts = 20;
-		//for (int i = 0; i < verts; i++)
-		//{
-		//	float radius = (float)rand() / (float)RAND_MAX * 0.4f + 0.8f;  // TODO dont understand the numbers here
-		//	float a = ((float)i / (float)verts) * 6.28318f; // percent of current index to how many verts * 2pi
-		//	vecAsteroids.push_back(std::make_pair(radius * sinf(a), radius * cos(a)));
-		//}		
+		ResetGame();	
 
 		return true;
 	}
@@ -65,88 +56,85 @@ public:
 
 		player.UpdateInput(this, fElapsedTime);
 
-		// Updating the position from the velocity
-		player.x += player.dx * fElapsedTime;
-		player.y += player.dy * fElapsedTime;
-
 		// Wrap the player in the screen
 		WrapCoordinates(player.x, player.y, player.x, player.y);
 
-		// Check if player collides with asteroid
-		/*for (auto& a : Asteroids)
-		{
-			if (IsPointInsideCirle(a->x, a->y, a->size, player.x, player.y))
-			{
-				player.bDead = true;
-			}
-		}*/
-
 		// Drawing the player vertices // TODO should probably use DrawTriangle() instead
-		//DrawTriangle(player.x + );
 		DrawWireFrameModel(player.vertices, player.x, player.y, player.angle);
 		
+		// Updating Asteroid
 		for (auto a : Asteroids)
 		{
 			// Update positions
 			a->x += a->dx * fElapsedTime;
 			a->y += a->dy * fElapsedTime;
-			//a->angle += 2.0f * fElapsedTime; // TODO change this to a variable
+			a->angle += a->spinRate * fElapsedTime;
 			WrapCoordinates(a->x, a->y, a->x, a->y);
-
-			// draws the pixels
 			DrawWireFrameModel(a->vertices, a->x, a->y, a->angle, a->size);
-			DrawString(0.0f, 0.0f, std::to_string(a->angle));
-			DrawString(0.0f, 50.0f, std::to_string(player.angle));
+		}
+
+		// Check if player collides with asteroid
+		for (auto& a : Asteroids)
+		{
+			if (IsPointInsideCirle(a->x, a->y, a->size, player.x, player.y))
+			{
+				player.Died();
+			}
 		}
 
 		// Asteroids created after colliding with a bullet
 		/*std::vector<Asteroid*> NewAsteroids;*/
 
-		//// Drawing Bullets and updating position
-		//for (auto& b : Bullets)
-		//{
-		//	// Update positions
-		//	b.x += b.dx * fElapsedTime;
-		//	b.y += b.dy * fElapsedTime;
-		//	WrapCoordinates(b.x, b.y, b.x, b.y);
-		//	Draw(b.x, b.y);
+		// Drawing Bullets and updating position
+		for (auto& b : Bullets)
+		{
+			// Update positions
+			b.x += b.dx * fElapsedTime;
+			b.y += b.dy * fElapsedTime;
+			WrapCoordinates(b.x, b.y, b.x, b.y);
+			Draw(b.x, b.y);
 
-		//	// Checking collisions with each asteroid // TODO see if you can make this faster
-		//	for (auto& a : Asteroids)
-		//	{
-		//		if (IsPointInsideCirle(a->x, a->y, a->size, b.x, b.y))
-		//		{
-		//			Score++;
-		//			b.x = -100; // remove bullet
+			// Checking collisions with each asteroid // TODO see if you can make this faster
+			for (auto& a : Asteroids)
+			{
+				if (IsPointInsideCirle(a->x, a->y, a->size, b.x, b.y))
+				{
+					Score++;
+					b.x = -100; // remove bullet
 
-		//			if (a->size > 4) // TODO promote 4 to its own value, 4 should be minimal size for the asteroid
-		//			{
-		//				// Create 2 smaller asteroids
-		//				//float angle1 = ((float)rand() / (float)RAND_MAX) * 6.283185f; // random angle between 0 -- 2pi
-		//				//float angle2 = ((float)rand() / (float)RAND_MAX) * 6.283185f;
-		//				//NewAsteroids.push_back({ a->x, a->y, 10.0f * sinf(angle1), 10.0f * cosf(angle1), (int)a->size >> 1, 0.0f });
-		//				//NewAsteroids.push_back({ a->x, a->y, 10.0f * sinf(angle2), 10.0f * cosf(angle2), (int)a->size >> 1, 0.0f });
-		//			}
+					if (a->size > 4)
+					{
 
-		//			a->x = -100; // Removes hit asteroid
-		//		}
-		//	}
-		//}
+					}
+
+					if (a->size > 4) // TODO promote 4 to its own value, 4 should be minimal size for the asteroid
+					{
+						// Create 2 smaller asteroids
+						//float angle1 = ((float)rand() / (float)RAND_MAX) * 6.283185f; // random angle between 0 -- 2pi
+						//float angle2 = ((float)rand() / (float)RAND_MAX) * 6.283185f;
+						//NewAsteroids.push_back({ a->x, a->y, 10.0f * sinf(angle1), 10.0f * cosf(angle1), (int)a->size >> 1, 0.0f });
+						//NewAsteroids.push_back({ a->x, a->y, 10.0f * sinf(angle2), 10.0f * cosf(angle2), (int)a->size >> 1, 0.0f });
+					}
+
+					a->x = -100; // Removes hit asteroid
+				}
+			}
+		}
 
 		/*for (auto a : NewAsteroids)
 		{
 			Asteroids.push_back(a);
 		}*/
 
-		//// Remove any bullets that go off screen
-		//if (Bullets.size() > 0)
-		//{
-		//	auto i = remove_if(Bullets.begin(), Bullets.end(), [&](Asteroid* o) { return (o->x < 1 || o->y < 1 || o->x >= ScreenWidth() - 1 || o->y >= ScreenHeight() - 1); });
-		//	if (i != Bullets.end())
-		//	{
-		//		Bullets.erase(i);
-		//	}
-		//}
+		// Remove any bullets that go off screen
+		if (Bullets.size() > 0)
+		{
+			auto i = remove_if(Bullets.begin(), Bullets.end(), [&](SpaceObject* o) { return (o->x < 1 || o->y < 1 || o->x >= ScreenWidth() - 1 || o->y >= ScreenHeight() - 1); });
+			if (i != Bullets.end())
+			{
+				Bullets.erase(i);
+			}
+		}
 		
 		// Remove dead asteroids
 		/*if (Asteroids.size() > 0)

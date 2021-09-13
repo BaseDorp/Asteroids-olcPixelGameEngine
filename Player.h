@@ -1,20 +1,17 @@
 #pragma once
 #include <vector>
+#include "SpaceObject.h"
 #include "olcPixelGameEngine.h"
 
-class Player
+class Player : public SpaceObject
 {
 public:
 	std::vector<std::pair<float, float>> vertices;
-
-	float x, y;
-	float dx, dy;
-	float angle;
-
 	int shotsFired;
 	bool bDead;
 
 	Player();
 	void UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime);
+	void Died();
 };
 
