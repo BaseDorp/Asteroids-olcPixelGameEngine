@@ -22,7 +22,7 @@ private:
 	//};
 
 	std::vector<Asteroid*> Asteroids;
-	std::vector<SpaceObject> Bullets;
+	std::vector<SpaceObject*> Bullets;
 	Player player;
 	int Score = 0;
 
@@ -55,6 +55,14 @@ public:
 		}
 
 		player.UpdateInput(this, fElapsedTime);
+
+		// Shooting // put this in the game loop here because it is easier to connect to the bullets vector. should be in player class tbh
+		if (this->GetKey(olc::Key::SPACE).bPressed)
+		{
+			Bullets.push_back(new SpaceObject(player.x, player.y, 50.0f * sinf(player.angle), -50.0f * cosf(player.angle), 0, 0));
+			//Bullets.push_back(({ player.x, player.y, 50.0f * sinf(player.angle), -50.0f * cosf(player.angle), 0, 0 }); // TODO make 50 its own variables
+			player.shotsFired++;
+		}
 
 		// Wrap the player in the screen
 		WrapCoordinates(player.x, player.y, player.x, player.y);
@@ -89,34 +97,27 @@ public:
 		for (auto& b : Bullets)
 		{
 			// Update positions
-			b.x += b.dx * fElapsedTime;
-			b.y += b.dy * fElapsedTime;
-			WrapCoordinates(b.x, b.y, b.x, b.y);
-			Draw(b.x, b.y);
+			b->x += b->dx * fElapsedTime;
+			b->y += b->dy * fElapsedTime;
+			WrapCoordinates(b->x, b->y, b->x, b->y);
+			Draw(b->x, b->y);
 
-			// Checking collisions with each asteroid // TODO see if you can make this faster
-			for (auto& a : Asteroids)
+			// Check bullets collision with asteroids
+			for (int i = 0; i < Asteroids.size(); i++)
 			{
-				if (IsPointInsideCirle(a->x, a->y, a->size, b.x, b.y))
+				if (IsPointInsideCirle(Asteroids[i]->x, Asteroids[i]->y, Asteroids[i]->size, b->x, b->y))
 				{
 					Score++;
-					b.x = -100; // remove bullet
+					b->x = -100; // remove bullet
 
-					if (a->size > 4)
+					// splits the asteroid if it has not been reduced to a certain size
+					if (Asteroids[i]->size > Asteroids[i]->size / 2) //  TODO make 4 its own variable // TODO doesnt work
 					{
-
+						Asteroids[i]->SplitAsteroid(Asteroids);
 					}
 
-					if (a->size > 4) // TODO promote 4 to its own value, 4 should be minimal size for the asteroid
-					{
-						// Create 2 smaller asteroids
-						//float angle1 = ((float)rand() / (float)RAND_MAX) * 6.283185f; // random angle between 0 -- 2pi
-						//float angle2 = ((float)rand() / (float)RAND_MAX) * 6.283185f;
-						//NewAsteroids.push_back({ a->x, a->y, 10.0f * sinf(angle1), 10.0f * cosf(angle1), (int)a->size >> 1, 0.0f });
-						//NewAsteroids.push_back({ a->x, a->y, 10.0f * sinf(angle2), 10.0f * cosf(angle2), (int)a->size >> 1, 0.0f });
-					}
-
-					a->x = -100; // Removes hit asteroid
+					Asteroids.erase(Asteroids.begin()+i); // TODO pretty sure this is ineffiecient
+					i--; // think i have to do this to make sure I dont skip the next asteroid when I remove
 				}
 			}
 		}
@@ -150,6 +151,7 @@ public:
 		if (Asteroids.empty())
 		{
 			//Bullets.clear();
+			// LEVEL COMPLETE
 
 			// TODO make adding more asteroids its own function //  TODO also dont know what these numbers do
 			/*Asteroids.push_back({ 
@@ -170,13 +172,14 @@ public:
 	}
 
 	/// <summary>
-	/// 
+	/// Checks if a given point is inside a circle
 	/// </summary>
-	/// <param name="c"></param>
-	/// <param name="y"></param>
-	/// <param name=""></param>
-	/// <param name="radius"></param>
-	/// <param name="y"></param>
+	/// <param name="cx"> - Circle X Position</param>
+	/// <param name="cy"> - Circle Y Position</param>
+	/// <param name="radius"> - Circle Radius</param>
+	/// <param name="x"> - Point X Position</param>
+	/// <param name="y"> - Point Y Position</param>
+	/// <returns></returns>
 	bool IsPointInsideCirle(float cx, float cy, float radius, float x, float y)
 	{
 		return sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) < radius;
@@ -185,12 +188,12 @@ public:
 	/// <summary>
 	/// Draws an outline wireframe model from a vector of vertices
 	/// </summary>
-	/// <param name="vecModelCoordinates"> vector of vertices </param>
-	/// <param name="x"> x position of the object </param>
-	/// <param name="y"> y position of the object </param>
-	/// <param name="r"> angle rotation of the object </param>
-	/// <param name="s"> scale of the object </param>
-	/// <param name="color"> color of the wireframe</param>
+	/// <param name="vecModelCoordinates"> - vector of vertices </param>
+	/// <param name="x"> - x position of the object </param>
+	/// <param name="y"> - y position of the object </param>
+	/// <param name="r"> - angle rotation of the object </param>
+	/// <param name="s"> - scale of the object </param>
+	/// <param name="color"> - color of the wireframe</param>
 	void DrawWireFrameModel(const std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float r = 0.0f, float s = 1.0f, olc::Pixel color = olc::WHITE)
 	{
 		// Create a vector of the newly translated vertices
@@ -231,6 +234,10 @@ public:
 	/// <summary>
 	/// 
 	/// </summary>
+	/// <param name="ix"></param>
+	/// <param name="iy"></param>
+	/// <param name="ox"></param>
+	/// <param name="oy"></param>
 	void WrapCoordinates(float ix, float iy, float& ox, float& oy)
 	{
 		// set the output to the input

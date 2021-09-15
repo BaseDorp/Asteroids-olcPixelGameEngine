@@ -2,11 +2,11 @@
 #include <vector>
 #include "SpaceObject.h"
 
-class Asteroid : SpaceObject
+class Asteroid : public SpaceObject
 {
 public:
 	std::vector<std::pair<float, float>> vertices;
-	void CreateAsteroid();
+	void CreateAsteroid(int numOfVertices);
 
 	float x, y;
 	float dx, dy;
@@ -14,7 +14,7 @@ public:
 	float size;
 	float spinRate;
 
+	Asteroid(float x, float y, float dx, float dy, int size, float angle);
 	Asteroid();
-	void SplitAsteroid();
+	void SplitAsteroid(std::vector<Asteroid*> &asteroids);
 };
-

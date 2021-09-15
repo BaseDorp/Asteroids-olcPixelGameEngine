@@ -34,15 +34,20 @@ void Player::UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime)
 	}
 
 	// Shooting
-	if (Instance->GetKey(olc::Key::SPACE).bPressed)
-	{
-		//Bullets.push_back({ x, y, 50.0f * sinf(angle), -50.0f * cosf(angle), 0, 0 }); // TODO make 50 its own variables
-		shotsFired++;
-	}
+	//if (Instance->GetKey(olc::Key::SPACE).bPressed)
+	//{
+	//	Bullets.push_back({ x, y, 50.0f * sinf(angle), -50.0f * cosf(angle), 0, 0 }); // TODO make 50 its own variables
+	//	shotsFired++;
+	//}
 
 	// Updating the position from the velocity
 	x += dx * fElapsedTime;
 	y += dy * fElapsedTime;
+}
+
+void Player::Died()
+{
+	this->bDead = true;
 }
 
 	//void DrawPlayer(olc::PixelGameEngine Instance)
