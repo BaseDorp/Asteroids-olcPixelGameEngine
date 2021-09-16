@@ -10,6 +10,7 @@ Player::Player()
 	};
 	x, y, dx, dy, angle = 0.0f;
 	shotsFired = 0;
+	shotsMissed = 0;
 	bDead = false;
 }
 
@@ -43,6 +44,18 @@ void Player::UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime)
 	// Updating the position from the velocity
 	x += dx * fElapsedTime;
 	y += dy * fElapsedTime;
+}
+
+void Player::ResetPlayer(olc::PixelGameEngine* instance)
+{
+	this->x = instance->ScreenWidth() / 2.0f;
+	this->y = instance->ScreenHeight() / 2.0f;
+	this->dx = 0.0f;
+	this->dy = 0.0f;
+	this->angle = 0.0f;
+	this->bDead = false;
+	this->shotsFired = 0;
+	this->shotsMissed = 0;
 }
 
 void Player::Died()

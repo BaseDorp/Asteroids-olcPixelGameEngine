@@ -13,21 +13,10 @@ public:
 	}
 
 private:
-	//struct SpaceObject
-	//{
-	//	float x, y; // Position
-	//	float dx, dy; // Direction
-	//	int size;
-	//	float angle;
-	//};
-
 	std::vector<Asteroid*> Asteroids;
 	std::vector<SpaceObject*> Bullets;
 	Player player;
 	int Score = 0;
-
-	/*std::vector<std::pair<float, float>> vecPlayerShip;
-	std::vector<std::pair<float, float>> vecAsteroids;*/
 
 public:
 	bool OnUserCreate() override // Start
@@ -60,7 +49,6 @@ public:
 		if (this->GetKey(olc::Key::SPACE).bPressed)
 		{
 			Bullets.push_back(new SpaceObject(player.x, player.y, 50.0f * sinf(player.angle), -50.0f * cosf(player.angle), 0, 0));
-			//Bullets.push_back(({ player.x, player.y, 50.0f * sinf(player.angle), -50.0f * cosf(player.angle), 0, 0 }); // TODO make 50 its own variables
 			player.shotsFired++;
 		}
 
@@ -90,9 +78,6 @@ public:
 			}
 		}
 
-		// Asteroids created after colliding with a bullet
-		/*std::vector<Asteroid*> NewAsteroids;*/
-
 		// Drawing Bullets and updating position
 		for (auto& b : Bullets)
 		{
@@ -111,7 +96,7 @@ public:
 					b->x = -100; // remove bullet
 
 					// splits the asteroid if it has not been reduced to a certain size
-					if (Asteroids[i]->size > Asteroids[i]->size / 2) //  TODO make 4 its own variable // TODO doesnt work
+					if (Asteroids[i]->size > 4) // TODO 4 should be the maxSize / numberOfTimesSplit
 					{
 						Asteroids[i]->SplitAsteroid(Asteroids);
 					}
@@ -122,11 +107,6 @@ public:
 			}
 		}
 
-		/*for (auto a : NewAsteroids)
-		{
-			Asteroids.push_back(a);
-		}*/
-
 		// Remove any bullets that go off screen
 		if (Bullets.size() > 0)
 		{
@@ -134,6 +114,7 @@ public:
 			if (i != Bullets.end())
 			{
 				Bullets.erase(i);
+				player.shotsMissed++;
 			}
 		}
 		
@@ -147,25 +128,12 @@ public:
 			}
 		}*/
 
-		// Check if player destroyed all asteroids
+		// Check if player destroyed all asteroids aka LEVEL COMPLETE
 		if (Asteroids.empty())
 		{
-			//Bullets.clear();
-			// LEVEL COMPLETE
+			Bullets.clear();
 
-			// TODO make adding more asteroids its own function //  TODO also dont know what these numbers do
-			/*Asteroids.push_back({ 
-				30.0f * sinf(player.angle - 3.14159f / 2.0f),
-				30.0f * cosf(player.angle - 3.14159 / 2.0f),
-				10.0f * sinf(player.angle), 
-				10.0f * cosf(player.angle),
-				(int)16, 0.0f });
-			Asteroids.push_back({ 
-				30.0f * sinf(player.angle - 3.14159f / 2.0f),
-				30.0f * cosf(player.angle - 3.14159 / 2.0f),
-				10.0f * sinf(-player.angle), 
-				10.0f * cosf(-player.angle),
-				(int)16, 0.0f });*/
+			// TODO make adding more asteroids its own function
 		}
 
 		return true;
@@ -278,22 +246,17 @@ public:
 	{
 		// remove all asteroids and bullets
 		Asteroids.clear();
-		//Bullets.clear();
+		Bullets.clear();
 
 		// Creates asteroid
-		Asteroids.push_back(new Asteroid());
-		//Asteroids.push_back(new Asteroid());
-
-		// Initialize player in the middle of the screen
-		player.x = ScreenWidth() / 2.0f;
-		player.y = ScreenHeight() / 2.0f;
-		player.dx = 0.0f;
-		player.dy = 0.0f;
-		player.angle = 0.0f;
+		srand(time(NULL));
+		Asteroids.push_back(new Asteroid(this));
+		Asteroids.push_back(new Asteroid(this));
+		Asteroids.push_back(new Asteroid(this));
+		Asteroids.push_back(new Asteroid(this));
 
 		Score = 0;
-
-		player.bDead = false;
+		player.ResetPlayer(this);
 	}
 };
 

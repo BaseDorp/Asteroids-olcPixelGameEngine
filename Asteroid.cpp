@@ -8,16 +8,22 @@ Asteroid::Asteroid(float x, float y, float dx, float dy, int size, float angle)
 	this->dy = dy;
 	this->size = size;
 	this->angle = angle;
+	this->spinRate = rand() % 5;
 	CreateAsteroid(20);
 }
 
-Asteroid::Asteroid()
+Asteroid::Asteroid(olc::PixelGameEngine* instance)
 {
-	x, y = 50.0f;
-	dx = -5.0f;
-	dy = 8.0f;
+	// put random asteroid on screen
+	// TODO make them not spawn on player?
+	// think it works in this case cuss it just keeps resetting the game until its not, but should check for player position as well
+	x = rand() % instance->ScreenWidth();
+	y = rand() % instance->ScreenHeight();
+	dx = 1 + rand() % 15;
+	dy = 1 + rand() % 15;
 	angle = 0.0f;
 	size = 16;
+	spinRate = rand() % 5;
 	CreateAsteroid(20);
 }
 

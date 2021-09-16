@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "SpaceObject.h"
+#include "olcPixelGameEngine.h"
 
 class Asteroid : public SpaceObject
 {
@@ -12,9 +13,12 @@ public:
 	float dx, dy;
 	float angle;
 	float size;
+	float minSize;
 	float spinRate;
 
-	Asteroid(float x, float y, float dx, float dy, int size, float angle);
+	// dont use
 	Asteroid();
+	Asteroid(float x, float y, float dx, float dy, int size, float angle);
+	Asteroid(olc::PixelGameEngine* instance);
 	void SplitAsteroid(std::vector<Asteroid*> &asteroids);
 };

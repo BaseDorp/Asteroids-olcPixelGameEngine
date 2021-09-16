@@ -8,11 +8,13 @@ class Player : public SpaceObject
 public:
 	std::vector<std::pair<float, float>> vertices;
 	int shotsFired;
+	int shotsMissed;
 	bool bDead;
 
 	Player();
 	Player(float x, float y, float dx, float dy, int size, float angle);
 	void UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime);
+	void ResetPlayer(olc::PixelGameEngine* instance);
 	void Died();
 };
 
