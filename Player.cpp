@@ -10,7 +10,7 @@ Player::Player()
 	};
 	x, y, dx, dy, angle = 0.0f;
 	shotsFired = 0;
-	shotsMissed = 0;
+	shotsHit = 0;
 	bDead = false;
 }
 
@@ -55,7 +55,16 @@ void Player::ResetPlayer(olc::PixelGameEngine* instance)
 	this->angle = 0.0f;
 	this->bDead = false;
 	this->shotsFired = 0;
-	this->shotsMissed = 0;
+	this->shotsHit = 0;
+}
+
+float Player::GetAccuracy()
+{
+	if (shotsFired != 0)
+	{
+		return (float)shotsHit / (float)shotsFired;
+	}
+	return 0;
 }
 
 void Player::Died()

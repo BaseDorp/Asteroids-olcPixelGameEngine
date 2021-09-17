@@ -44,6 +44,7 @@ public:
 		}
 
 		player.UpdateInput(this, fElapsedTime);
+		DrawString(0, 0, "Accuracy: " + std::to_string(player.GetAccuracy()));
 
 		// Shooting // put this in the game loop here because it is easier to connect to the bullets vector. should be in player class tbh
 		if (this->GetKey(olc::Key::SPACE).bPressed)
@@ -92,7 +93,7 @@ public:
 			{
 				if (IsPointInsideCirle(Asteroids[i]->x, Asteroids[i]->y, Asteroids[i]->size, b->x, b->y))
 				{
-					Score++;
+					player.shotsHit++; // had to make it shotsHit because of how the game handles removing bullets
 					b->x = -100; // remove bullet
 
 					// splits the asteroid if it has not been reduced to a certain size
@@ -114,7 +115,6 @@ public:
 			if (i != Bullets.end())
 			{
 				Bullets.erase(i);
-				player.shotsMissed++;
 			}
 		}
 		
