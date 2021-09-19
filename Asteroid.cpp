@@ -48,3 +48,8 @@ void Asteroid::SplitAsteroid(std::vector<Asteroid*> &asteroids)
 	asteroids.push_back(new Asteroid(this->x, this->y, this->dx, -this->dy, this->size/2, this->angle));
 	asteroids.push_back(new Asteroid(this->x, this->y, -this->dx, this->dy, this->size / 2, this->angle));
 }
+
+void Asteroid::ExplosionEffect(olc::PixelGameEngine* instance)
+{
+	// TODO
+}

@@ -59,15 +59,43 @@ public:
 		// Drawing the player vertices // TODO should probably use DrawTriangle() instead
 		DrawWireFrameModel(player.vertices, player.x, player.y, player.angle);
 		
+		// lambda function that checks if two circles are intersecting
+		auto DoCirclesOverlap = [](float x1, float y1, float r1, float x2, float y2, float r2)
+		{
+			// absolute value // squared the radi to get rid of the sqrt
+			return fabs((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) <= (r1 + r2) * (r1 * r2);
+		};
+
 		// Updating Asteroid
 		for (auto a : Asteroids)
 		{
+			for (auto otherA : Asteroids)
+			{
+				if (a != otherA) // makes sure collision isnt check with itself
+				{
+					if (DoCirclesOverlap(a->x, a->y, a->size, otherA->x, otherA->y, otherA->size))
+					{
+						// TODO idk why we cant remove the sqrt here though
+						float distance = sqrt((a->x - otherA->x) * (a->x - otherA->x) + (a->y - otherA->y) * (a->y - otherA->y));
+
+						float overlap = (distance - a->size - otherA->size) * 0.5f;
+					}
+
+					
+				}
+			}
+
 			// Update positions
 			a->x += a->dx * fElapsedTime;
 			a->y += a->dy * fElapsedTime;
 			a->angle += a->spinRate * fElapsedTime;
 			WrapCoordinates(a->x, a->y, a->x, a->y);
 			DrawWireFrameModel(a->vertices, a->x, a->y, a->angle, a->size);
+
+			// TODO collision between asteroids
+			// check overlaps of cirlce
+			// get overlap amount
+			// do math to set direction vectors
 		}
 
 		// Check if player collides with asteroid
@@ -99,6 +127,7 @@ public:
 					// splits the asteroid if it has not been reduced to a certain size
 					if (Asteroids[i]->size > 4) // TODO 4 should be the maxSize / numberOfTimesSplit
 					{
+						Asteroids[i]->ExplosionEffect(this);
 						Asteroids[i]->SplitAsteroid(Asteroids);
 					}
 
