@@ -143,12 +143,14 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="olcPixelGameEngine.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Powerup.cpp" />
     <ClCompile Include="SpaceObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Asteroid.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Powerup.h" />
     <ClInclude Include="SpaceObject.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

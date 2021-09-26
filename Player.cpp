@@ -8,14 +8,17 @@ Player::Player()
 		{-2.5f, 2.5f},
 		{2.5f, 2.5f}
 	};
-	x, y, dx, dy, angle = 0.0f;
+	x, y, vx, vy, angle = 0.0f;
 	shotsFired = 0;
 	shotsHit = 0;
 	bDead = false;
+	powerup.Type = powerup.None;
 }
 
 void Player::UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime)
 {
+	// each of these should probably be there own function but not really required since i have no plans on moving this to some other engine
+
 	// Steer the player
 	if (Instance->GetKey(olc::Key::LEFT).bHeld)
 	{
@@ -30,28 +33,21 @@ void Player::UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime)
 	if (Instance->GetKey(olc::Key::UP).bHeld)
 	{
 		// Changing the Velocity by 'x' Acceleration
-		dx += sin(angle) * 20.0f * fElapsedTime; // TODO I dont get this
-		dy -= cos(angle) * 20.0f * fElapsedTime; // TODO change 20.0f to its own variable
+		vx += sin(angle) * 20.0f * fElapsedTime; // TODO I dont get this
+		vy -= cos(angle) * 20.0f * fElapsedTime; // TODO change 20.0f to its own variable
 	}
 
-	// Shooting
-	//if (Instance->GetKey(olc::Key::SPACE).bPressed)
-	//{
-	//	Bullets.push_back({ x, y, 50.0f * sinf(angle), -50.0f * cosf(angle), 0, 0 }); // TODO make 50 its own variables
-	//	shotsFired++;
-	//}
-
 	// Updating the position from the velocity
-	x += dx * fElapsedTime;
-	y += dy * fElapsedTime;
+	x += vx * fElapsedTime;
+	y += vy * fElapsedTime;
 }
 
 void Player::ResetPlayer(olc::PixelGameEngine* instance)
 {
 	this->x = instance->ScreenWidth() / 2.0f;
 	this->y = instance->ScreenHeight() / 2.0f;
-	this->dx = 0.0f;
-	this->dy = 0.0f;
+	this->vx = 0.0f;
+	this->vy = 0.0f;
 	this->angle = 0.0f;
 	this->bDead = false;
 	this->shotsFired = 0;
@@ -71,8 +67,3 @@ void Player::Died()
 {
 	this->bDead = true;
 }
-
-	//void DrawPlayer(olc::PixelGameEngine Instance)
-	//{
-	//	Instance.DrawTriangle(player.x + verticies[1, 1], )
-	//}
