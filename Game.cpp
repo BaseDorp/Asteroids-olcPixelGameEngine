@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Asteroid.h"
 #include "SpaceObject.h"
+#include "Quadtree.h"
 
 class Example : public olc::PixelGameEngine
 {
@@ -16,18 +17,22 @@ private:
 	std::vector<Asteroid*> Asteroids;
 	std::vector<SpaceObject*> Bullets;
 	Player player;
+	Quadtree* quadtree;
 	int Score = 0;
 	bool bDebugMode = true;
 
 public:
 	bool OnUserCreate() override // Start
 	{
-		player.vertices = // TODO idk why the vertices arent initializing
+		player.vertices = // TODO idk why the vertices arent initializing when its in the player class
 		{
 			{0.0f, -5.0f},
 			{-2.5f, 2.5f},
 			{2.5f, 2.5f}
 		};
+
+		quadtree = new Quadtree();
+		quadtree->bounds = new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight());
 
 		ResetGame();	
 
@@ -46,7 +51,8 @@ public:
 
 		player.UpdateInput(this, fElapsedTime);
 		// TODO drawstring(score)
-		DrawString(0, 10, "Accuracy: " + std::to_string(player.GetAccuracy()));
+		//DrawString(0, 10, "Accuracy: " + std::to_string(player.GetAccuracy()));
+		DrawString(0, 10, "Press D to toggle debug");
 
 		// Shooting // put this in the game loop here because it is easier to connect to the bullets vector. should be in player class tbh
 		if (this->GetKey(olc::Key::SPACE).bPressed)
@@ -64,6 +70,9 @@ public:
 		// Updating Asteroid
 		for (auto a1 : Asteroids)
 		{
+			quadtree->Insert(a1); // adding the asteroids to the quadtree
+
+
 			for (auto a2 : Asteroids)
 			{
 				if (a1 != a2) // makes sure collision isnt check with itself
@@ -182,6 +191,14 @@ public:
 				}
 				
 			}
+
+			// TODO draw debug of quadtrees
+			DrawRect(quadtree->bounds->x, quadtree->bounds->y, quadtree->bounds->width, quadtree->bounds->height);
+
+			/*while (!quadtree.bIsSplit)
+			{
+
+			}*/
 		}
 
 		return true;
@@ -320,7 +337,7 @@ public:
 
 		// Creates asteroid
 		srand(time(NULL));
-		for (int i = 0; i < 10; i++)
+		for (int i = 0; i < 100; i++) // around 160fps before quadtree
 		{
 			Asteroids.push_back(new Asteroid(this));
 		}

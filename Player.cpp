@@ -9,6 +9,7 @@ Player::Player()
 		{2.5f, 2.5f}
 	};
 	x, y, vx, vy, angle = 0.0f;
+	this->size = 1;
 	shotsFired = 0;
 	shotsHit = 0;
 	bDead = false;
