@@ -2,6 +2,7 @@
 #include <vector>
 #include "SpaceObject.h"
 #include "olcPixelGameEngine.h"
+#include "Quadtree.h"
 
 class Asteroid : public SpaceObject
 {
@@ -13,7 +14,7 @@ public:
 	Asteroid(); // dont use default constructor
 	Asteroid(float x, float y, float vx, float vy, int size, float angle);
 	Asteroid(olc::PixelGameEngine* instance);
-	void SplitAsteroid(std::vector<Asteroid*> &asteroids);
+	void SplitAsteroid(std::vector<Asteroid*> &asteroids, Quadtree &quadtree);
 	void ExplosionEffect(olc::PixelGameEngine* instance);
 	void UpdateAsteroid(float fElaspedTime);
 };

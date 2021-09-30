@@ -31,8 +31,7 @@ public:
 			{2.5f, 2.5f}
 		};
 
-		quadtree = new Quadtree();
-		quadtree->bounds = new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight());
+		quadtree = new Quadtree(new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()));
 
 		ResetGame();	
 
@@ -69,10 +68,7 @@ public:
 
 		// Updating Asteroid
 		for (auto a1 : Asteroids)
-		{
-			quadtree->Insert(a1); // adding the asteroids to the quadtree
-
-
+		{	
 			for (auto a2 : Asteroids)
 			{
 				if (a1 != a2) // makes sure collision isnt check with itself
@@ -99,7 +95,7 @@ public:
 			// Update positions
 			a1->UpdateAsteroid(fElapsedTime);
 			WrapCoordinates(a1->x, a1->y, a1->x, a1->y);
-			DrawWireFrameModel(a1->vertices, a1->x, a1->y, a1->angle, a1->size/a1->size); // TODO something wrong with the that i dont know how to fix yet
+			//DrawWireFrameModel(a1->vertices, a1->x, a1->y, a1->angle, a1->size/a1->size); // TODO something wrong with the that i dont know how to fix yet
 
 			// TODO collision between asteroids
 			// check overlaps of cirlce
@@ -138,11 +134,12 @@ public:
 					if (Asteroids[i]->size > 4) // TODO 4 should be the maxSize / numberOfTimesSplit
 					{
 						Asteroids[i]->ExplosionEffect(this);
-						Asteroids[i]->SplitAsteroid(Asteroids);
+						Asteroids[i]->SplitAsteroid(Asteroids, *quadtree); // TODO remove the dependancy from the quadtree class
 					}
 
 					Asteroids.erase(Asteroids.begin()+i); // TODO pretty sure there is a better way to do this
-					i--; // think i have to do this to make sure I dont skip the next asteroid when I remove this
+					quadtree->objects.erase(quadtree->objects.begin() + i); // TODO move this to Quadtree class
+					i--; // make sure I dont skip the next asteroid when I remove this
 				}
 			}
 		}
@@ -175,8 +172,10 @@ public:
 			for (auto a : Asteroids)
 			{
 				// shows radius of circles
-				DrawCircle(a->x, a->y, a->size);
-			
+				//DrawCircle(a->x, a->y, a->size);
+				// Draws center point
+				DrawCircle(a->x, a->y, 2);
+
 				// shows which circles are colliding
 				for (auto otherA : Asteroids)
 				{
@@ -185,7 +184,7 @@ public:
 						//TODO something is wrong with the radius
 						if (AreCirclesOverlapping(a->x, a->y, a->size/2, otherA->x, otherA->y, otherA->size/2))
 						{
-							DrawLine(a->x, a->y, otherA->x, otherA->y, olc::RED);
+							//DrawLine(a->x, a->y, otherA->x, otherA->y, olc::RED);
 						}
 					}
 				}
@@ -193,12 +192,9 @@ public:
 			}
 
 			// TODO draw debug of quadtrees
-			DrawRect(quadtree->bounds->x, quadtree->bounds->y, quadtree->bounds->width, quadtree->bounds->height);
+			//DrawRect(quadtree->bounds->x, quadtree->bounds->y, quadtree->bounds->width, quadtree->bounds->height);
 
-			/*while (!quadtree.bIsSplit)
-			{
-
-			}*/
+			quadtree->Draw(this);
 		}
 
 		return true;
@@ -335,11 +331,16 @@ public:
 		Asteroids.clear();
 		Bullets.clear();
 
+		//quadtree->objects.clear();
+
 		// Creates asteroid
 		srand(time(NULL));
 		for (int i = 0; i < 100; i++) // around 160fps before quadtree
 		{
-			Asteroids.push_back(new Asteroid(this));
+			Asteroid* a = new Asteroid(this);
+			Asteroids.push_back(a);
+			quadtree->Insert(a);
+			//quadtree->objects.push_back(a);
 		}
 
 		Score = 0;
@@ -351,7 +352,7 @@ public:
 int main()
 {
 	Example demo;
-	if (demo.Construct(640, 360, 2, 2))
+	if (demo.Construct(400, 400, 2, 2))
 		demo.Start(); // If the window is created, start the application
 
 	return 0;

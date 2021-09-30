@@ -1,15 +1,23 @@
 #include "Quadtree.h"
 
-Quadtree::Quadtree()
-{
-	this->maxLevels = 4;
-	this->bIsSplit = false;
-}
+//Quadtree::Quadtree()
+//{
+//	this->maxLevels = 4;
+//	this->bIsSplit = false;
+//}
 
-Quadtree::Quadtree(Rectangle bounds)
+Quadtree::Quadtree(Rectangle* bounds)
 {
 	this->maxLevels = 4;
 	this->bIsSplit = false;
+	this->bounds = bounds;
+	this->level = 0;
+	this->maxObjects = 4;
+
+	this->topLeft = nullptr;
+	this->topRight = nullptr;
+	this->bottomLeft = nullptr;
+	this->bottomRight = nullptr;
 }
 
 void Quadtree::Split()
@@ -19,16 +27,54 @@ void Quadtree::Split()
 	float subWidth = bounds->width / 2;
 	float subHeight = bounds->height / 2;
 
+	// Top Left
+	nodes.push_back(new Quadtree(new Rectangle(x, y, subWidth, subHeight)));
+	// Top Right
+	nodes.push_back(new Quadtree(new Rectangle(x + subWidth, y, subWidth, subHeight)));
+	// Bottom Left
+	nodes.push_back(new Quadtree(new Rectangle(x, y + subHeight, subWidth, subHeight)));
+	// Bottom Right
+	nodes.push_back(new Quadtree(new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight)));
+
 	/*nodes[0] = new Quadtree(level + 1, new Rectangle(x + subWidth, y, subWidth, subHeight));
 	nodes[1] = new Quadtree(level + 1, new Rectangle(x, y, subWidth, subHeight));
 	nodes[2] = new Quadtree(level + 1, new Rectangle(x, y + subHeight, subWidth, subHeight));
 	nodes[3] = new Quadtree(level + 1, new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));*/
 
-	topLeft = new Quadtree(Rectangle(x, y, subWidth, subHeight));
+	/*topLeft = new Quadtree(Rectangle(x, y, subWidth, subHeight));
 	topRight = new Quadtree(Rectangle(x + subWidth, y, subWidth, subHeight));
 	bottomLeft = new Quadtree(Rectangle(x, y + subHeight, subWidth, subHeight));
-	bottomRight = new Quadtree(Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));
+	bottomRight = new Quadtree(Rectangle(x + subWidth, y + subHeight, subWidth, subHeight));*/
 
+	for (auto o : this->objects)
+	{
+			for (int i = 0; i < nodes.size(); i++)
+			{
+				if (nodes[i]->bounds->Contains(o->x, o->y))
+				{
+					nodes[i]->Insert(o);
+				}
+			}
+
+		/*if (nodes[0]->bounds.Contains(o->x, o->y))
+		{
+			nodes[0]->Insert(o);
+		}
+		else if (nodes[1]->bounds.Contains(o->x, o->y))
+		{
+			nodes[1]->Insert(o);
+		}
+		else if (nodes[2]->bounds.Contains(o->x, o->y))
+		{
+			nodes[2]->Insert(o);
+		}
+		else if (nodes[3]->bounds.Contains(o->x, o->y))
+		{
+			nodes[3]->Insert(o);
+		}*/
+	}
+
+	//this->objects.clear();
 	this->bIsSplit = true;
 }
 
@@ -94,7 +140,7 @@ int Quadtree::GetIndex()
 void Quadtree::Insert(SpaceObject* spaceObject)
 {
 	// check if the object is inside this quadtree // for recurssion
-	if (bounds->Contains(spaceObject->x, spaceObject->y))
+	if (!bounds->Contains(spaceObject->x, spaceObject->y))
 	{
 		return;
 	}
@@ -111,10 +157,14 @@ void Quadtree::Insert(SpaceObject* spaceObject)
 			this->Split();
 		}
 
-		topLeft->Insert(spaceObject);
-		topRight->Insert(spaceObject);
-		bottomLeft->Insert(spaceObject);
-		bottomRight->Insert(spaceObject);
+		for (auto n : nodes)
+		{
+			n->Insert(spaceObject);
+		}
+		/*this->topLeft->Insert(spaceObject);
+		this->topRight->Insert(spaceObject);
+		this->bottomLeft->Insert(spaceObject);
+		this->bottomRight->Insert(spaceObject);*/
 	}
 
 	/*public void insert(Rectangle pRect) {
@@ -211,4 +261,38 @@ std::vector<SpaceObject*> Quadtree::Retrieve(std::vector<SpaceObject*> returnObj
 	//returnObjects.addAll(objects);
 
 	return std::vector<SpaceObject*>();
+}
+
+void Quadtree::Draw(olc::PixelGameEngine* instance)
+{
+	if (!bIsSplit) // makes sure the parent nodes dont draw on top of child nodes
+	{
+		instance->DrawString(bounds->x + 2, bounds->y + 2, std::to_string(this->objects.size()));
+	}
+	instance->DrawRect(bounds->x, bounds->y, bounds->width, bounds->height);
+
+	if (bIsSplit)
+	{
+		for (auto n : nodes)
+		{
+			n->Draw(instance);
+		}
+
+		/*if (topLeft != nullptr && objects.size() > 0)
+		{
+			topLeft->Draw(instance);
+		}
+		if (topRight != nullptr && objects.size() > 0)
+		{
+			topRight->Draw(instance);
+		}
+		if (bottomLeft != nullptr && objects.size() > 0)
+		{
+			bottomLeft->Draw(instance);
+		}
+		if (bottomRight != nullptr && objects.size() > 0)
+		{
+			bottomRight->Draw(instance);
+		}*/
+	}
 }
