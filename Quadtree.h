@@ -29,6 +29,7 @@ public:
 			this->height = height;
 		}
 
+		// Checks if the point is inside this rectangle
 		bool Contains(float x, float y)
 		{
 			return (x > this->x && y > this->y && x < (this->x + width) && y < (this->y + height));
@@ -38,23 +39,21 @@ public:
 	int maxObjects; // max amount of objects the quadtree can hold
 	int maxLevels; // deepest subnode
 	int level; // how deep down this quadtree is. 0 being the root
-	bool bIsSplit;
+	bool bIsSplit; // true is this quadtree has split already
 	Rectangle* bounds;
-	std::vector<SpaceObject*> objects;
-	std::vector<Quadtree*> nodes;
-	// TODO switch this to nodes
-	Quadtree* topRight;
+	std::vector<SpaceObject*> objects; // TODO make this a template class so it can accept any type of object
+	std::vector<Quadtree*> nodes; // leaf subnodes
+	/*Quadtree* topRight;
 	Quadtree* topLeft;
 	Quadtree* bottomRight;
-	Quadtree* bottomLeft;
+	Quadtree* bottomLeft;*/
 
-	//Quadtree();
-	Quadtree(Rectangle* rectangle);
+	Quadtree(Rectangle* rectangle, int level);
 	void Split(); // Splits the Quadtree into 4 subnodes
-	int GetIndex(); // checks to see which node the object fits in
 	void Insert(SpaceObject* spaceObject);
 	void Clear(); // Clears all the objects from this Quadtree down recursively
-	std::vector<SpaceObject*> Retrieve(std::vector<SpaceObject*> returnObjects, Rectangle rectangle);
 	void Draw(olc::PixelGameEngine* instance);
+
+	void Query(Rectangle* area); // find objects in a certain area
 };
 

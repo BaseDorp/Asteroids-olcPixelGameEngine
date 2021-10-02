@@ -31,7 +31,7 @@ public:
 			{2.5f, 2.5f}
 		};
 
-		quadtree = new Quadtree(new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()));
+		quadtree = new Quadtree(new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()), -1); // this is -1 so the root node is 0
 
 		ResetGame();	
 
@@ -49,9 +49,11 @@ public:
 		}
 
 		player.UpdateInput(this, fElapsedTime);
-		// TODO drawstring(score)
-		//DrawString(0, 10, "Accuracy: " + std::to_string(player.GetAccuracy()));
-		DrawString(0, 10, "Press D to toggle debug");
+		
+		// Drawing stats
+		DrawString(0, 5, "Score: " + std::to_string(Score));
+		DrawString(0, 15, "Accuracy: " + std::to_string(player.GetAccuracy()));
+		DrawString(0, 25, "Press D to toggle debug drawings");
 
 		// Shooting // put this in the game loop here because it is easier to connect to the bullets vector. should be in player class tbh
 		if (this->GetKey(olc::Key::SPACE).bPressed)
@@ -65,10 +67,25 @@ public:
 		// Drawing the player vertices // TODO should probably use DrawTriangle() instead
 		DrawWireFrameModel(player.vertices, player.x, player.y, player.angle);
 
+		// Remaking the quadtree each loop to update the positions
+		// TODO dont really like this way, might be a more effecient way
+		quadtree->Clear();
+		for (auto a : Asteroids)
+		{
+			quadtree->Insert(a);
+		}
 
 		// Updating Asteroid
 		for (auto a1 : Asteroids)
 		{	
+			// retrieve quadtree that contains a1
+			// go through objects in that quadtree and collision check with those except a1
+
+			//float range = a1->size * 2;
+			//quadtree->Query(range);
+
+
+
 			for (auto a2 : Asteroids)
 			{
 				if (a1 != a2) // makes sure collision isnt check with itself
@@ -79,9 +96,6 @@ public:
 						// TODO
 
 						// get point where vectors hit, reflect off of that point?
-
-						//DrawLine(a->x, a->y, otherA->x, otherA->y);
-						
 
 						// Distance between asteroids
 						float fDistance = sqrtf((a1->x - a2->x) * (a1->x - a2->x) + (a1->y - a2->y) * (a1->y - a2->y));
@@ -97,11 +111,7 @@ public:
 			WrapCoordinates(a1->x, a1->y, a1->x, a1->y);
 			//DrawWireFrameModel(a1->vertices, a1->x, a1->y, a1->angle, a1->size/a1->size); // TODO something wrong with the that i dont know how to fix yet
 
-			// TODO collision between asteroids
-			// check overlaps of cirlce
-			// get overlap amount
-			// do math to set direction vectors
-			// set directions to reflect off point of contact?
+			// TODO collision physics between asteroids
 		}
 
 		// Check if player collides with asteroid
@@ -159,7 +169,7 @@ public:
 		{
 			Bullets.clear();
 
-			// TODO 
+			// TODO level complete
 		}
 
 		if (GetKey(olc::Key::D).bPressed)
@@ -168,11 +178,10 @@ public:
 		}
 		if (bDebugMode)
 		{
-			// TODO
 			for (auto a : Asteroids)
 			{
 				// shows radius of circles
-				//DrawCircle(a->x, a->y, a->size);
+				// DrawCircle(a->x, a->y, a->size);
 				// Draws center point
 				DrawCircle(a->x, a->y, 2);
 
@@ -190,9 +199,6 @@ public:
 				}
 				
 			}
-
-			// TODO draw debug of quadtrees
-			//DrawRect(quadtree->bounds->x, quadtree->bounds->y, quadtree->bounds->width, quadtree->bounds->height);
 
 			quadtree->Draw(this);
 		}
@@ -330,8 +336,7 @@ public:
 		// remove all asteroids and bullets
 		Asteroids.clear();
 		Bullets.clear();
-
-		//quadtree->objects.clear();
+		quadtree->Clear();
 
 		// Creates asteroid
 		srand(time(NULL));
