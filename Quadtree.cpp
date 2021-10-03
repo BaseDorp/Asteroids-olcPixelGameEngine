@@ -6,7 +6,7 @@ Quadtree::Quadtree(Rectangle* bounds, int level)
 	this->bIsSplit = false;
 	this->bounds = bounds;
 	this->level = level++;
-	this->maxObjects = 4;
+	this->maxObjects = 3;
 }
 
 void Quadtree::Split()
@@ -25,6 +25,11 @@ void Quadtree::Split()
 	// Bottom Right
 	nodes.push_back(new Quadtree(new Rectangle(x + subWidth, y + subHeight, subWidth, subHeight), this->level++));
 
+	// go through objects and see which subnode they belong in
+	// add that object to the subnode's objects
+	// after all objects have been moved down, clear the parents objects
+
+
 	// takes all the objects in the parent node and splits them into there corresponding subdivided quadtree
 	for (auto o : this->objects)
 	{
@@ -36,22 +41,24 @@ void Quadtree::Split()
 			}
 		}
 	}
-
+	
+	this->objects.clear(); // clears the objects in the parent tree, this isnt really important but saves memeory
 	this->bIsSplit = true;
 }
 
 void Quadtree::Insert(SpaceObject* spaceObject)
 {
-	// check if the object is inside this quadtree // for recurssion
+	// if the object does not fit inside this quadtree, this isn't the right quadtree
 	if (!bounds->Contains(spaceObject->x, spaceObject->y))
 	{
 		return;
 	}
 
-	// add the object to the quadtree if the max has not been hit or is at the lowest leaf level
-	if (this->objects.size() < maxObjects || this->level == maxLevels) 
+	// add the object to the quadtree if the max has not been hit
+	if (!bIsSplit && this->objects.size() < maxObjects) 
 	{
 		objects.push_back(spaceObject);
+		// make this return true so that we dont have to keep checking after its been added
 	}
 	else
 	{
@@ -60,6 +67,7 @@ void Quadtree::Insert(SpaceObject* spaceObject)
 			this->Split();
 		}
 
+		// adds the passed in object to one of the subnodes
 		for (auto n : nodes)
 		{
 			n->Insert(spaceObject);
@@ -86,15 +94,15 @@ void Quadtree::Draw(olc::PixelGameEngine* instance)
 	{
 		instance->DrawString(bounds->x + 2, bounds->y + 2, std::to_string(this->objects.size()));
 	}
-	instance->DrawRect(bounds->x, bounds->y, bounds->width, bounds->height);
-
-	if (bIsSplit)
+	else
 	{
 		for (auto n : nodes)
 		{
 			n->Draw(instance);
 		}
 	}
+
+	instance->DrawRect(bounds->x, bounds->y, bounds->width, bounds->height);
 }
 
 //void Quadtree::Query(float range)

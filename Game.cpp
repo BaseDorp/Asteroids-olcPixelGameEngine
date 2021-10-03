@@ -69,11 +69,11 @@ public:
 
 		// Remaking the quadtree each loop to update the positions
 		// TODO dont really like this way, might be a more effecient way
-		quadtree->Clear();
+		/*quadtree->Clear();
 		for (auto a : Asteroids)
 		{
 			quadtree->Insert(a);
-		}
+		}*/
 
 		// Updating Asteroid
 		for (auto a1 : Asteroids)
