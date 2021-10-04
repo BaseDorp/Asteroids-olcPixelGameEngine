@@ -31,7 +31,7 @@ public:
 			{2.5f, 2.5f}
 		};
 
-		quadtree = new Quadtree(new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()), -1); // this is -1 so the root node is 0
+		quadtree = new Quadtree(new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()));
 
 		ResetGame();	
 
@@ -69,11 +69,21 @@ public:
 
 		// Remaking the quadtree each loop to update the positions
 		// TODO dont really like this way, might be a more effecient way
-		/*quadtree->Clear();
+		quadtree->Clear();
 		for (auto a : Asteroids)
 		{
 			quadtree->Insert(a);
-		}*/
+			// TODO i need to be checking is a quadtree nodes are empty, if so i can unsplit it
+		}
+		
+		// option 1. make a function that takes the object and returns the quadtree it is in
+		// go through the objects in that quadtree and do collision checks
+		// con: might collision check object multiple times
+
+		// option 2. recurssivly go through quadtree and check collisions from lowest quadtree up
+		// add all colliding pairs to a vector
+
+		// objects that fully fit inside one subnode tree, put it there // any objects that cross multiple quadtrees, put in in the parent
 
 		// Updating Asteroid
 		for (auto a1 : Asteroids)
@@ -86,25 +96,25 @@ public:
 
 
 
-			for (auto a2 : Asteroids)
-			{
-				if (a1 != a2) // makes sure collision isnt check with itself
-				{
-					// if the two asteroids do collide
-					if (AreCirclesOverlapping(a1->x, a1->y, a1->size, a2->x, a2->y, a2->size))
-					{
-						// TODO
+			//for (auto a2 : Asteroids)
+			//{
+			//	if (a1 != a2) // makes sure collision isnt check with itself
+			//	{
+			//		// if the two asteroids do collide
+			//		if (AreCirclesOverlapping(a1->x, a1->y, a1->size, a2->x, a2->y, a2->size))
+			//		{
+			//			// TODO
 
-						// get point where vectors hit, reflect off of that point?
+			//			// get point where vectors hit, reflect off of that point?
 
-						// Distance between asteroids
-						float fDistance = sqrtf((a1->x - a2->x) * (a1->x - a2->x) + (a1->y - a2->y) * (a1->y - a2->y));
+			//			// Distance between asteroids
+			//			float fDistance = sqrtf((a1->x - a2->x) * (a1->x - a2->x) + (a1->y - a2->y) * (a1->y - a2->y));
 
-						// gets how much the circles are overlapping. divided by 2 because we only assert half of the displacement onto each circle
-						float fOverlap = 0.5f * (fDistance - a1->size - a2->size);
-					}
-				}
-			}
+			//			// gets how much the circles are overlapping. divided by 2 because we only assert half of the displacement onto each circle
+			//			float fOverlap = 0.5f * (fDistance - a1->size - a2->size);
+			//		}
+			//	}
+			//}
 
 			// Update positions
 			a1->UpdateAsteroid(fElapsedTime);
@@ -119,7 +129,7 @@ public:
 		{
 			if (IsPointInsideCirle(a->x, a->y, a->size, player.x, player.y))
 			{
-				player.Died();
+				//player.Died();
 			}
 		}
 
@@ -148,7 +158,8 @@ public:
 					}
 
 					Asteroids.erase(Asteroids.begin()+i); // TODO pretty sure there is a better way to do this
-					quadtree->objects.erase(quadtree->objects.begin() + i); // TODO move this to Quadtree class
+					quadtree->Delete(Asteroids[i]);
+					//quadtree->objects.erase(quadtree->objects.begin() + i); // TODO move this to Quadtree class
 					i--; // make sure I dont skip the next asteroid when I remove this
 				}
 			}
@@ -183,7 +194,7 @@ public:
 				// shows radius of circles
 				// DrawCircle(a->x, a->y, a->size);
 				// Draws center point
-				DrawCircle(a->x, a->y, 2);
+				DrawCircle(a->x, a->y, a->size);
 
 				// shows which circles are colliding
 				for (auto otherA : Asteroids)
@@ -345,7 +356,6 @@ public:
 			Asteroid* a = new Asteroid(this);
 			Asteroids.push_back(a);
 			quadtree->Insert(a);
-			//quadtree->objects.push_back(a);
 		}
 
 		Score = 0;

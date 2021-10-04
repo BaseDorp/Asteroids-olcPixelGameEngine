@@ -29,16 +29,42 @@ public:
 			this->height = height;
 		}
 
-		// Checks if the point is inside this rectangle
-		bool Contains(float x, float y)
+		// Checks if the circle is inside this rectangle bounds
+		bool Contains(float x, float y, float r)
 		{
-			return (x > this->x && y > this->y && x < (this->x + width) && y < (this->y + height));
+			float testX = x;
+			float testY = y;
+
+			// finds which 2 edges to check collision against
+			if (x < this->x) // left of the rectangle
+			{
+				testX = this->x;
+			}
+			else if (x > this->x + this->width) // right
+			{
+				testX = this->x + this->width;
+			}
+
+			if (y < this->y) // top edge
+			{
+				testY = this->y;
+			}
+			else if (y > this->y + this->height) // bottom edge
+			{
+				testY = this->y + this->height;
+			}
+
+			
+			return (r >= sqrt(((x - testX) * (x - testX)) + ((y - testY) * (y - testY))));
+
+			//return (x > this->x && y > this->y && x < (this->x + width) && y < (this->y + height));
 		}
 	};
 
 	int maxObjects; // max amount of objects the quadtree can hold
-	int maxLevels; // deepest subnode
-	int level; // how deep down this quadtree is. 0 being the root
+	// TODO add max about of times the quadtree can split
+	//int maxLevels; // amount of times the quadtree can split
+	//int level; // how deep down this quadtree is. 0 being the root
 	bool bIsSplit; // true is this quadtree has split already
 	Rectangle* bounds;
 	std::vector<SpaceObject*> objects; // TODO make this a template class so it can accept any type of object
@@ -48,9 +74,10 @@ public:
 	Quadtree* bottomRight;
 	Quadtree* bottomLeft;*/
 
-	Quadtree(Rectangle* rectangle, int level);
+	Quadtree(Rectangle* rectangle);
 	void Split(); // Splits the Quadtree into 4 subnodes
 	void Insert(SpaceObject* spaceObject);
+	void Delete(SpaceObject* spaceObject);
 	void Clear(); // Clears all the objects from this Quadtree down recursively
 	void Draw(olc::PixelGameEngine* instance);
 

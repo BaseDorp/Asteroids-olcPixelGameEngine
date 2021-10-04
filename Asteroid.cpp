@@ -49,8 +49,8 @@ void Asteroid::UpdateAsteroid(float fElaspedTime)
 	this->vx += (this->ax /*/ this->size*/) * fElaspedTime;
 	this->vy += (this->ay /*/ this->size*/) * fElaspedTime;
 
-	//this->x += this->vx * fElaspedTime;
-	//this->y += this->vy * fElaspedTime;
+	this->x += this->vx * fElaspedTime;
+	this->y += this->vy * fElaspedTime;
 	this->angle += this->spinRate * fElaspedTime;
 
 	this->ax = 0; // TODO dont know if i have to reset the acceleration after computations
