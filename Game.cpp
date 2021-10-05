@@ -203,17 +203,6 @@ public:
 			quadtree->Draw(this);
 		}
 
-		// TODO remove
-		float mouseX = float(GetMouseX());
-		float mouseY = float(GetMouseY());
-		float radius = 4;
-		FillCircle(mouseX, mouseY, radius, olc::YELLOW);
-		FillRect(ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 4, ScreenHeight() / 4);
-		if (Contains(mouseX, mouseY, radius, ScreenWidth()/2, ScreenHeight()/2, ScreenWidth() / 4, ScreenHeight() / 4))
-		{
-			FillCircle(mouseX, mouseY, radius, olc::RED);
-		}
-
 		return true;
 	}
 
@@ -360,36 +349,6 @@ public:
 
 		Score = 0;
 		player.ResetPlayer(this);
-	}
-
-	bool Contains(float cx, float cy, float r, float rx, float ry, float width, float height)
-	{
-		// find the point on the AABB that is closest to the circle
-		//if the distance from the circle to this point is less than its radius, we have a collision.
-
-		//get distance from center of circle to center of rectangle
-	   /*float distanceX = cx - (this->width/2 + this->x);
-	   float distanceY = cy - (this->height/2 + this->y);*/
-
-
-	   // get the point on the rectangle that is closest to the center of the circle
-		float closestX = clamp(cx - (rx + (width / 2)), rx, rx + width);
-		float closestY = clamp(cy - (ry + (height / 2)), ry, ry + height);
-
-		float distance = (closestX * closestX) + (closestY * closestY);
-
-		return (distance < r * r);
-
-		/*float closestX = clamp(cx - rx, 0, width);
-		float closestY = clamp(cy - ry, 0, height);
-
-		float distance = closestX * closestX + closestY * closestY;*/
-
-		//return (distance < r * r);
-	}
-	float clamp(float value, float min, float max) // not really nessacary for the struct but serperated for readability
-	{
-		return std::max(min, std::min(max, value));
 	}
 };
 

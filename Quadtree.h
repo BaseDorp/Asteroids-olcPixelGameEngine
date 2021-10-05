@@ -31,23 +31,29 @@ public:
 
 		// Checks if the circle is inside this rectangle bounds
 		bool Contains(float cx, float cy, float r)
-		{
-			 // find the point on the AABB that is closest to the circle
-			 //if the distance from the circle to this point is less than its radius, we have a collision.
-
-			 //get distance from center of circle to center of rectangle
-			/*float distanceX = cx - (this->width/2 + this->x);
-			float distanceY = cy - (this->height/2 + this->y);*/
-			
-
+		{	
 			// get the point on the rectangle that is closest to the center of the circle
-			float closestX = clamp(cx - (this->x + (width/2)), this->x, this->x + width);
-			float closestY = clamp(cy - (this->y + (height/2)), this->y, this->y + height);
+			float halfextentsX = this->width / 2.0f;
+			float halfextentsY = this->height / 2.0f;
 
-			float distance = (closestX * closestX) + (closestY * closestY);
+			float centerX = this->x + halfextentsX;
+			float centerY = this->y + halfextentsY;
 
-			return (distance < r * r);
+			float differenceX = cx - centerX;
+			float differenceY = cy - centerY;
 
+			float clampedX = clamp(differenceX, -halfextentsX, halfextentsX);
+			float clampedY = clamp(differenceY, -halfextentsY, halfextentsY);
+
+			float closestX = centerX + clampedX;
+			float closestY = centerY + clampedY;
+
+			differenceX = closestX - cx;
+			differenceY = closestY - cy;
+
+			return ((differenceX * differenceX) + (differenceY * differenceY) <= r * r);
+
+			// Point collisoin check
 			//return (cx > this->x && cy > this->y && cx < (this->x + width) && cy < (this->y + height));
 		}
 
@@ -65,10 +71,6 @@ public:
 	Rectangle* bounds;
 	std::vector<SpaceObject*> objects; // TODO make this a template class so it can accept any type of object
 	std::vector<Quadtree*> nodes; // leaf subnodes
-	/*Quadtree* topRight;
-	Quadtree* topLeft;
-	Quadtree* bottomRight;
-	Quadtree* bottomLeft;*/
 
 	Quadtree(Rectangle* rectangle);
 	void Split(); // Splits the Quadtree into 4 subnodes

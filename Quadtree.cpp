@@ -4,7 +4,7 @@ Quadtree::Quadtree(Rectangle* bounds)
 {
 	this->bIsSplit = false;
 	this->bounds = bounds;
-	this->maxObjects = 4;
+	this->maxObjects = 5;
 }
 
 void Quadtree::Split()
