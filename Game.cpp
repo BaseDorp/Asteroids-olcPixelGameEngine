@@ -75,25 +75,14 @@ public:
 			quadtree->Insert(a);
 			// TODO i need to be checking is a quadtree nodes are empty, if so i can unsplit it
 		}
+
+		// go to lowest sub-quadtree // do collision check with each quadtree recursively
 		
-		// option 1. make a function that takes the object and returns the quadtree it is in
-		// go through the objects in that quadtree and do collision checks
-		// con: might collision check object multiple times
-
-		// option 2. recurssivly go through quadtree and check collisions from lowest quadtree up
-		// add all colliding pairs to a vector
-
-		// objects that fully fit inside one subnode tree, put it there // any objects that cross multiple quadtrees, put in in the parent
+		// can also do collision check with every object in that quadtree when adding a new object // this way you dont have to go to the bottom of teh tree again
 
 		// Updating Asteroid
 		for (auto a1 : Asteroids)
 		{	
-			// retrieve quadtree that contains a1
-			// go through objects in that quadtree and collision check with those except a1
-
-			//float range = a1->size * 2;
-			//quadtree->Query(range);
-
 
 
 			//for (auto a2 : Asteroids)
@@ -212,6 +201,17 @@ public:
 			}
 
 			quadtree->Draw(this);
+		}
+
+		// TODO remove
+		float mouseX = float(GetMouseX());
+		float mouseY = float(GetMouseY());
+		float radius = 4;
+		FillCircle(mouseX, mouseY, radius, olc::YELLOW);
+		FillRect(ScreenWidth() / 2, ScreenHeight() / 2, ScreenWidth() / 4, ScreenHeight() / 4);
+		if (Contains(mouseX, mouseY, radius, ScreenWidth()/2, ScreenHeight()/2, ScreenWidth() / 4, ScreenHeight() / 4))
+		{
+			FillCircle(mouseX, mouseY, radius, olc::RED);
 		}
 
 		return true;
@@ -335,7 +335,7 @@ public:
 	{
 		float fx, fy;
 		WrapCoordinates(x, y, fx, fy);
-		olc::PixelGameEngine::Draw(fx, fy);
+		olc::PixelGameEngine::Draw(fx, fy, p);
 		return true;
 	}
 
@@ -351,7 +351,7 @@ public:
 
 		// Creates asteroid
 		srand(time(NULL));
-		for (int i = 0; i < 100; i++) // around 160fps before quadtree
+		for (int i = 0; i < 50; i++) // around 160fps before quadtree
 		{
 			Asteroid* a = new Asteroid(this);
 			Asteroids.push_back(a);
@@ -360,6 +360,36 @@ public:
 
 		Score = 0;
 		player.ResetPlayer(this);
+	}
+
+	bool Contains(float cx, float cy, float r, float rx, float ry, float width, float height)
+	{
+		// find the point on the AABB that is closest to the circle
+		//if the distance from the circle to this point is less than its radius, we have a collision.
+
+		//get distance from center of circle to center of rectangle
+	   /*float distanceX = cx - (this->width/2 + this->x);
+	   float distanceY = cy - (this->height/2 + this->y);*/
+
+
+	   // get the point on the rectangle that is closest to the center of the circle
+		float closestX = clamp(cx - (rx + (width / 2)), rx, rx + width);
+		float closestY = clamp(cy - (ry + (height / 2)), ry, ry + height);
+
+		float distance = (closestX * closestX) + (closestY * closestY);
+
+		return (distance < r * r);
+
+		/*float closestX = clamp(cx - rx, 0, width);
+		float closestY = clamp(cy - ry, 0, height);
+
+		float distance = closestX * closestX + closestY * closestY;*/
+
+		//return (distance < r * r);
+	}
+	float clamp(float value, float min, float max) // not really nessacary for the struct but serperated for readability
+	{
+		return std::max(min, std::min(max, value));
 	}
 };
 

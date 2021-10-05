@@ -4,7 +4,7 @@ Quadtree::Quadtree(Rectangle* bounds)
 {
 	this->bIsSplit = false;
 	this->bounds = bounds;
-	this->maxObjects = 3;
+	this->maxObjects = 4;
 }
 
 void Quadtree::Split()
@@ -34,7 +34,7 @@ void Quadtree::Split()
 			}
 		}
 	}
-	
+
 	this->objects.clear(); // clears the objects in the parent tree, this isnt really important but saves memeory
 	this->bIsSplit = true;
 }
@@ -50,7 +50,25 @@ void Quadtree::Insert(SpaceObject* spaceObject)
 	if (!bIsSplit && this->objects.size() < maxObjects) // add the object to the quadtree if the max has not been hit
 	{
 		objects.push_back(spaceObject);
-		// make this return true so that we dont have to keep checking after its been added
+
+		// collision check object with other objects in that quadtree
+		//for (auto o : this->objects)
+		//{
+		//	if (o != spaceObject)
+		//	{
+		//		float x1 = spaceObject->x;
+		//		float y1 = spaceObject->y;
+		//		float r1 = spaceObject->size;
+		//		float x2 = o->x;
+		//		float y2 = o->y;
+		//		float r2 = o->size;
+
+		//		if (((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) <= (r1 + r2) * (r1 * r2))
+		//		{
+		//			// colliding
+		//		}
+		//	}
+		//}
 	}
 	else
 	{

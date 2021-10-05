@@ -30,34 +30,30 @@ public:
 		}
 
 		// Checks if the circle is inside this rectangle bounds
-		bool Contains(float x, float y, float r)
+		bool Contains(float cx, float cy, float r)
 		{
-			float testX = x;
-			float testY = y;
+			 // find the point on the AABB that is closest to the circle
+			 //if the distance from the circle to this point is less than its radius, we have a collision.
 
-			// finds which 2 edges to check collision against
-			if (x < this->x) // left of the rectangle
-			{
-				testX = this->x;
-			}
-			else if (x > this->x + this->width) // right
-			{
-				testX = this->x + this->width;
-			}
-
-			if (y < this->y) // top edge
-			{
-				testY = this->y;
-			}
-			else if (y > this->y + this->height) // bottom edge
-			{
-				testY = this->y + this->height;
-			}
-
+			 //get distance from center of circle to center of rectangle
+			/*float distanceX = cx - (this->width/2 + this->x);
+			float distanceY = cy - (this->height/2 + this->y);*/
 			
-			return (r >= sqrt(((x - testX) * (x - testX)) + ((y - testY) * (y - testY))));
 
-			//return (x > this->x && y > this->y && x < (this->x + width) && y < (this->y + height));
+			// get the point on the rectangle that is closest to the center of the circle
+			float closestX = clamp(cx - (this->x + (width/2)), this->x, this->x + width);
+			float closestY = clamp(cy - (this->y + (height/2)), this->y, this->y + height);
+
+			float distance = (closestX * closestX) + (closestY * closestY);
+
+			return (distance < r * r);
+
+			//return (cx > this->x && cy > this->y && cx < (this->x + width) && cy < (this->y + height));
+		}
+
+		float clamp(float value, float min, float max) // not really nessacary for the struct but serperated for readability
+		{
+			return std::max(min, std::min(max, value));
 		}
 	};
 
