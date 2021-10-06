@@ -32,7 +32,7 @@ public:
 			{2.5f, 2.5f}
 		};
 
-		quadtree = new Quadtree(new Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()));
+		quadtree = new Quadtree(Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()));
 
 		ResetGame();	
 
@@ -68,8 +68,9 @@ public:
 		// Drawing the player vertices // TODO should probably use DrawTriangle() instead
 		DrawWireFrameModel(player.vertices, player.x, player.y, player.angle);
 
-		// Remaking the quadtree each loop to update the positions
+
 		CollidingObjects.clear();
+		// Remaking the quadtree each loop to update the positions
 		quadtree->Clear();
 		for (auto a : Asteroids)
 		{
@@ -84,6 +85,7 @@ public:
 
 			// TODO collision physics between asteroids
 		}
+	
 
 		// Check if player collides with asteroid
 		//for (auto& a : Asteroids)
@@ -118,8 +120,8 @@ public:
 						Asteroids[i]->SplitAsteroid(Asteroids, *quadtree); // TODO remove the dependancy from the quadtree class
 					}
 
-					Asteroids.erase(Asteroids.begin()+i);
 					quadtree->Delete(Asteroids[i]);
+					Asteroids.erase(Asteroids.begin()+i);
 					i--; // make sure I dont skip the next asteroid when I remove this
 				}
 			}
@@ -174,10 +176,10 @@ public:
 	/// <param name="y2"></param>
 	/// <param name="r2"></param>
 	/// <returns></returns>
-	/*bool AreCirclesOverlapping(float x1, float y1, float r1, float x2, float y2, float r2)
+	bool AreCirclesOverlapping(float x1, float y1, float r1, float x2, float y2, float r2)
 	{
-		return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) <= (r1 + r2) * (r1 * r2);
-	}*/
+		return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) <= (r1 + r2) * (r1 + r2);
+	}
 
 	/// <summary>
 	/// Checks if a given point is inside a circle
@@ -298,7 +300,7 @@ public:
 
 		// Creates asteroid
 		srand(time(NULL));
-		for (int i = 0; i < 100; i++) // around 160fps before quadtree
+		for (int i = 0; i < 100; i++)
 		{
 			Asteroid* a = new Asteroid(this);
 			Asteroids.push_back(a);

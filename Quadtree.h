@@ -29,10 +29,12 @@ public:
 			this->height = height;
 		}
 
+		/*
+		*	Circle/AABB collision code derived from: https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-Detection
+		*/
 		// Checks if the circle is inside this rectangle bounds
 		bool Contains(float cx, float cy, float r)
 		{	
-			// get the point on the rectangle that is closest to the center of the circle
 			float halfextentsX = this->width / 2.0f;
 			float halfextentsY = this->height / 2.0f;
 
@@ -42,6 +44,7 @@ public:
 			float differenceX = cx - centerX;
 			float differenceY = cy - centerY;
 
+			// get the point on the rectangle that is closest to the center of the circle
 			float clampedX = clamp(differenceX, -halfextentsX, halfextentsX);
 			float clampedY = clamp(differenceY, -halfextentsY, halfextentsY);
 
@@ -52,9 +55,6 @@ public:
 			differenceY = closestY - cy;
 
 			return ((differenceX * differenceX) + (differenceY * differenceY) <= r * r);
-
-			// Point collisoin check
-			//return (cx > this->x && cy > this->y && cx < (this->x + width) && cy < (this->y + height));
 		}
 
 		float clamp(float value, float min, float max) // not really nessacary for the struct but serperated for readability
@@ -68,18 +68,16 @@ public:
 	//int maxLevels; // amount of times the quadtree can split
 	//int level; // how deep down this quadtree is. 0 being the root
 	bool bIsSplit; // true is this quadtree has split already
-	Rectangle* bounds;
+	Rectangle bounds;
 	std::vector<SpaceObject*> objects;
-	std::vector<Quadtree*> nodes; // leaf subnodes
+	std::vector<std::shared_ptr<Quadtree>> nodes; // leaf subnodes
 
-	Quadtree(Rectangle* rectangle);
+	Quadtree(Rectangle rectangle);
 	// Splits the Quadtree into 4 sub-quadtrees
 	void Split(std::vector<std::pair<SpaceObject*, SpaceObject*>>& collidingObjects);
 	void Insert(SpaceObject* spaceObject, std::vector<std::pair<SpaceObject*, SpaceObject*>>& collidingObjects);
 	void Delete(SpaceObject* spaceObject);
 	void Clear(); // Clears all the objects from this Quadtree down recursively
 	void Draw(olc::PixelGameEngine* instance);
-
-	void Query(Rectangle* area); // find objects in a certain area
 };
 

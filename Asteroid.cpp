@@ -67,8 +67,8 @@ void Asteroid::SplitAsteroid(std::vector<Asteroid*> &asteroids, Quadtree &quadtr
 	asteroids.push_back(a1);
 	asteroids.push_back(a2);
 
-	// TODO need to add split asteroids to quadtree?
-	// will get updated but not till the next update call
+	// should add split asteroids to the quadtree
+	// it will get updated but not till the next update call
 	//quadtree.objects.push_back(a1);
 	//quadtree.objects.push_back(a2);
 }
