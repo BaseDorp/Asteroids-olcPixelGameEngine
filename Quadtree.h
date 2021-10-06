@@ -69,12 +69,13 @@ public:
 	//int level; // how deep down this quadtree is. 0 being the root
 	bool bIsSplit; // true is this quadtree has split already
 	Rectangle* bounds;
-	std::vector<SpaceObject*> objects; // TODO make this a template class so it can accept any type of object
+	std::vector<SpaceObject*> objects;
 	std::vector<Quadtree*> nodes; // leaf subnodes
 
 	Quadtree(Rectangle* rectangle);
-	void Split(); // Splits the Quadtree into 4 subnodes
-	void Insert(SpaceObject* spaceObject);
+	// Splits the Quadtree into 4 sub-quadtrees
+	void Split(std::vector<std::pair<SpaceObject*, SpaceObject*>>& collidingObjects);
+	void Insert(SpaceObject* spaceObject, std::vector<std::pair<SpaceObject*, SpaceObject*>>& collidingObjects);
 	void Delete(SpaceObject* spaceObject);
 	void Clear(); // Clears all the objects from this Quadtree down recursively
 	void Draw(olc::PixelGameEngine* instance);

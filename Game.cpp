@@ -16,10 +16,11 @@ public:
 private:
 	std::vector<Asteroid*> Asteroids;
 	std::vector<SpaceObject*> Bullets;
+	std::vector<std::pair<SpaceObject*, SpaceObject*>> CollidingObjects;
 	Player player;
 	Quadtree* quadtree;
 	int Score = 0;
-	bool bDebugMode = true;
+	bool bDebugMode = false;
 
 public:
 	bool OnUserCreate() override // Start
@@ -68,59 +69,30 @@ public:
 		DrawWireFrameModel(player.vertices, player.x, player.y, player.angle);
 
 		// Remaking the quadtree each loop to update the positions
-		// TODO dont really like this way, might be a more effecient way
+		CollidingObjects.clear();
 		quadtree->Clear();
 		for (auto a : Asteroids)
 		{
-			quadtree->Insert(a);
-			// TODO i need to be checking is a quadtree nodes are empty, if so i can unsplit it
-		}
-
-		// go to lowest sub-quadtree // do collision check with each quadtree recursively
-		
-		// can also do collision check with every object in that quadtree when adding a new object // this way you dont have to go to the bottom of teh tree again
-
-		// Updating Asteroid
-		for (auto a1 : Asteroids)
-		{	
-
-
-			//for (auto a2 : Asteroids)
-			//{
-			//	if (a1 != a2) // makes sure collision isnt check with itself
-			//	{
-			//		// if the two asteroids do collide
-			//		if (AreCirclesOverlapping(a1->x, a1->y, a1->size, a2->x, a2->y, a2->size))
-			//		{
-			//			// TODO
-
-			//			// get point where vectors hit, reflect off of that point?
-
-			//			// Distance between asteroids
-			//			float fDistance = sqrtf((a1->x - a2->x) * (a1->x - a2->x) + (a1->y - a2->y) * (a1->y - a2->y));
-
-			//			// gets how much the circles are overlapping. divided by 2 because we only assert half of the displacement onto each circle
-			//			float fOverlap = 0.5f * (fDistance - a1->size - a2->size);
-			//		}
-			//	}
-			//}
+			quadtree->Insert(a, CollidingObjects);
+			// TODO when asteroids are getting wrapped to the other side, it will not check the collision because the center point is still on the other side of the screen
 
 			// Update positions
-			a1->UpdateAsteroid(fElapsedTime);
-			WrapCoordinates(a1->x, a1->y, a1->x, a1->y);
-			//DrawWireFrameModel(a1->vertices, a1->x, a1->y, a1->angle, a1->size/a1->size); // TODO something wrong with the that i dont know how to fix yet
+			a->UpdateAsteroid(fElapsedTime);
+			WrapCoordinates(a->x, a->y, a->x, a->y);
+			DrawCircle(a->x, a->y, a->size);
+			//DrawWireFrameModel(a1->vertices, a1->x, a1->y, a1->angle, a1->size/a1->size);
 
 			// TODO collision physics between asteroids
 		}
 
 		// Check if player collides with asteroid
-		for (auto& a : Asteroids)
-		{
-			if (IsPointInsideCirle(a->x, a->y, a->size, player.x, player.y))
-			{
-				//player.Died();
-			}
-		}
+		//for (auto& a : Asteroids)
+		//{
+		//	if (IsPointInsideCirle(a->x, a->y, a->size, player.x, player.y))
+		//	{
+		//		//player.Died();
+		//	}
+		//}
 
 		// Drawing Bullets and updating position
 		for (auto& b : Bullets)
@@ -146,9 +118,8 @@ public:
 						Asteroids[i]->SplitAsteroid(Asteroids, *quadtree); // TODO remove the dependancy from the quadtree class
 					}
 
-					Asteroids.erase(Asteroids.begin()+i); // TODO pretty sure there is a better way to do this
+					Asteroids.erase(Asteroids.begin()+i);
 					quadtree->Delete(Asteroids[i]);
-					//quadtree->objects.erase(quadtree->objects.begin() + i); // TODO move this to Quadtree class
 					i--; // make sure I dont skip the next asteroid when I remove this
 				}
 			}
@@ -168,6 +139,7 @@ public:
 		if (Asteroids.empty())
 		{
 			Bullets.clear();
+			quadtree->Clear();
 
 			// TODO level complete
 		}
@@ -178,28 +150,14 @@ public:
 		}
 		if (bDebugMode)
 		{
-			for (auto a : Asteroids)
+			// show when objects are colliding
+			DrawString(0, 40, "Number of Objects Colliding: " + std::to_string(CollidingObjects.size()));
+			for (auto o : CollidingObjects)
 			{
-				// shows radius of circles
-				// DrawCircle(a->x, a->y, a->size);
-				// Draws center point
-				DrawCircle(a->x, a->y, a->size);
-
-				// shows which circles are colliding
-				for (auto otherA : Asteroids)
-				{
-					if (a != otherA)
-					{
-						//TODO something is wrong with the radius
-						if (AreCirclesOverlapping(a->x, a->y, a->size/2, otherA->x, otherA->y, otherA->size/2))
-						{
-							//DrawLine(a->x, a->y, otherA->x, otherA->y, olc::RED);
-						}
-					}
-				}
-				
+				DrawLine(o.first->x, o.first->y, o.second->x, o.second->y);
 			}
 
+			// shows quadtrees and how many objects are in each
 			quadtree->Draw(this);
 		}
 
@@ -216,10 +174,10 @@ public:
 	/// <param name="y2"></param>
 	/// <param name="r2"></param>
 	/// <returns></returns>
-	bool AreCirclesOverlapping(float x1, float y1, float r1, float x2, float y2, float r2)
+	/*bool AreCirclesOverlapping(float x1, float y1, float r1, float x2, float y2, float r2)
 	{
 		return ((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) <= (r1 + r2) * (r1 * r2);
-	}
+	}*/
 
 	/// <summary>
 	/// Checks if a given point is inside a circle
@@ -314,7 +272,7 @@ public:
 	}
 
 	/// <summary>
-	/// 
+	/// overriden draw function to wrap out of bounds pixels
 	/// </summary>
 	/// <param name="x"></param>
 	/// <param name="y"></param>
@@ -340,11 +298,11 @@ public:
 
 		// Creates asteroid
 		srand(time(NULL));
-		for (int i = 0; i < 50; i++) // around 160fps before quadtree
+		for (int i = 0; i < 100; i++) // around 160fps before quadtree
 		{
 			Asteroid* a = new Asteroid(this);
 			Asteroids.push_back(a);
-			quadtree->Insert(a);
+			quadtree->Insert(a, CollidingObjects);
 		}
 
 		Score = 0;

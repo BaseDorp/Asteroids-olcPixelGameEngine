@@ -34,7 +34,7 @@ void Asteroid::CreateAsteroid(int numOfVertices)
 	for (int i = 0; i < numOfVertices; i++)
 	{
 		float radius = size;
-		//float radius = (float)rand() / (float)RAND_MAX * 0.4f + 0.8f;  // TODO dont understand the numbers here
+		//float radius = (float)rand() / (float)RAND_MAX * 0.4f + 0.8f;
 		float a = ((float)i / (float)numOfVertices) * 6.28318f; // percent of current index to how many verts * 2pi
 		vertices.push_back(std::make_pair(radius * sinf(a), radius * cos(a)));
 	}
@@ -53,15 +53,12 @@ void Asteroid::UpdateAsteroid(float fElaspedTime)
 	this->y += this->vy * fElaspedTime;
 	this->angle += this->spinRate * fElaspedTime;
 
-	this->ax = 0; // TODO dont know if i have to reset the acceleration after computations
+	this->ax = 0;
 	this->ay = 0;
 }
 
 void Asteroid::SplitAsteroid(std::vector<Asteroid*> &asteroids, Quadtree &quadtree)
 {
-	// Create 2 new asteroids half the size of the original going in different directions
-	// new asteroids should be going in opposite directions
-
 	//float randAngle = rand() % 360; // random number between 0-359? // TODO make it to where the new asteroids go in random direction
 
 	Asteroid* a1 = new Asteroid(this->x, this->y, this->vx, -this->vy, this->size / 2, this->angle);
@@ -70,11 +67,10 @@ void Asteroid::SplitAsteroid(std::vector<Asteroid*> &asteroids, Quadtree &quadtr
 	asteroids.push_back(a1);
 	asteroids.push_back(a2);
 
-	//quadtree.Insert(a1);
-	//quadtree.Insert(a2);
-
-	quadtree.objects.push_back(a1);
-	quadtree.objects.push_back(a2);
+	// TODO need to add split asteroids to quadtree?
+	// will get updated but not till the next update call
+	//quadtree.objects.push_back(a1);
+	//quadtree.objects.push_back(a2);
 }
 
 void Asteroid::ExplosionEffect(olc::PixelGameEngine* instance)

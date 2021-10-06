@@ -7,7 +7,7 @@ Quadtree::Quadtree(Rectangle* bounds)
 	this->maxObjects = 5;
 }
 
-void Quadtree::Split()
+void Quadtree::Split(std::vector<std::pair<SpaceObject*, SpaceObject*>> &collidingObjects)
 {
 	float x = bounds->x;
 	float y = bounds->y;
@@ -30,16 +30,16 @@ void Quadtree::Split()
 		{
 			if (nodes[i]->bounds->Contains(o->x, o->y, o->size))
 			{
-				nodes[i]->Insert(o);
+				nodes[i]->Insert(o, collidingObjects);
 			}
 		}
 	}
 
-	this->objects.clear(); // clears the objects in the parent tree, this isnt really important but saves memeory
+	this->objects.clear();
 	this->bIsSplit = true;
 }
 
-void Quadtree::Insert(SpaceObject* spaceObject)
+void Quadtree::Insert(SpaceObject* spaceObject, std::vector<std::pair<SpaceObject*, SpaceObject*>> &collidingObjects)
 {
 	// if the object does not fit inside this quadtree, this isn't the right quadtree
 	if (!bounds->Contains(spaceObject->x, spaceObject->y, spaceObject->size))
@@ -51,36 +51,29 @@ void Quadtree::Insert(SpaceObject* spaceObject)
 	{
 		objects.push_back(spaceObject);
 
-		// collision check object with other objects in that quadtree
-		//for (auto o : this->objects)
-		//{
-		//	if (o != spaceObject)
-		//	{
-		//		float x1 = spaceObject->x;
-		//		float y1 = spaceObject->y;
-		//		float r1 = spaceObject->size;
-		//		float x2 = o->x;
-		//		float y2 = o->y;
-		//		float r2 = o->size;
+		for (auto o : this->objects)
+		{
+			// if the objects are not the same and overlapping (pythag)
+			if (spaceObject != o &&
+				((spaceObject->x - o->x) * (spaceObject->x - o->x)) + ((spaceObject->y - o->y) * (spaceObject->y - o->y)) <= (spaceObject->size + o->size) * (spaceObject->size + o->size))
+			{
+				// Add colliding pair to the collidingObjects vector
+				collidingObjects.push_back(std::make_pair(spaceObject, o));
+			}
+		}
 
-		//		if (((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)) <= (r1 + r2) * (r1 * r2))
-		//		{
-		//			// colliding
-		//		}
-		//	}
-		//}
 	}
 	else
 	{
 		if (!this->bIsSplit) // splits the quadtree if this quadtree has not been split yet
 		{
-			this->Split();
+			this->Split(collidingObjects);
 		}
 
 		// adds the passed in object to one of the subnodes
 		for (auto n : nodes)
 		{
-			n->Insert(spaceObject);
+			n->Insert(spaceObject, collidingObjects);
 		}
 	}
 }
