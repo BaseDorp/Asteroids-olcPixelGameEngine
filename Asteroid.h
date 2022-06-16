@@ -11,7 +11,6 @@ public:
 	void CreateAsteroid(int numOfVertices);
 	float spinRate;
 
-	Asteroid(); // dont use default constructor
 	Asteroid(float x, float y, float vx, float vy, int size, float angle);
 	Asteroid(olc::PixelGameEngine* instance);
 	void SplitAsteroid(std::vector<Asteroid*> &asteroids, Quadtree &quadtree);

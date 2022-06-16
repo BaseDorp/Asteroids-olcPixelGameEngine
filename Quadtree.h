@@ -13,15 +13,7 @@ public:
 		float width;
 		float height;
 
-		Rectangle()
-		{
-			this->x = 0;
-			this->y = 0;
-			this->width = 1;
-			this->height = 1;
-		}
-
-		Rectangle(float x, float y, float width, float height)
+		Rectangle(float x = 0.0f, float y = 0.0f, float width = 1.0f, float height = 1.0f)
 		{
 			this->x = x;
 			this->y = y;

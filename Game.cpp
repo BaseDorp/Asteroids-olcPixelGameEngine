@@ -1,9 +1,11 @@
 #define OLC_PGE_APPLICATION
 #include "olcPixelGameEngine.h"
-#include "Player.h"
+#include "player.h"
 #include "Asteroid.h"
 #include "SpaceObject.h"
 #include "Quadtree.h"
+
+// around 65mb before with 10 asteroids
 
 class Example : public olc::PixelGameEngine
 {
@@ -17,21 +19,16 @@ private:
 	std::vector<Asteroid*> Asteroids;
 	std::vector<SpaceObject*> Bullets;
 	std::vector<std::pair<SpaceObject*, SpaceObject*>> CollidingObjects;
-	Player player;
+	Player* player = nullptr;
 	Quadtree* quadtree;
 	int Score = 0;
 	bool bDebugMode = false;
+	bool btestMode = false;
 
 public:
 	bool OnUserCreate() override // Start
 	{
-		player.vertices = // TODO idk why the vertices arent initializing when its in the player class
-		{
-			{0.0f, -5.0f},
-			{-2.5f, 2.5f},
-			{2.5f, 2.5f}
-		};
-
+		player = new Player();
 		quadtree = new Quadtree(Quadtree::Rectangle(0, 0, ScreenWidth(), ScreenHeight()));
 
 		ResetGame();	
@@ -41,37 +38,57 @@ public:
 
 	bool OnUserUpdate(float fElapsedTime) override // Update
 	{
+#pragma region PRE_GAME_CHECKS
+
+		if (this->GetKey(olc::Key::H).bPressed)
+		{
+			btestMode = !btestMode;
+		}
+
+#pragma endregion
+#pragma region DRAWING_TO_SCREEN
+
 		// Resets the screen to black
 		Clear(olc::BLACK);
 
-		if (player.bDead)
+		// Drawing stats
+		DrawString(0, 5, "Score: " + std::to_string(Score));
+		DrawString(0, 15, "Accuracy: " + std::to_string(player->GetAccuracy()));
+		DrawString(0, 25, "Press D to toggle debug drawings");
+
+#pragma endregion
+
+
+		
+
+		if (player->bDead)
 		{
 			ResetGame();
 		}
 
-		player.UpdateInput(this, fElapsedTime);
+		player->UpdateInput(this, fElapsedTime);
 		
-		// Drawing stats
-		DrawString(0, 5, "Score: " + std::to_string(Score));
-		DrawString(0, 15, "Accuracy: " + std::to_string(player.GetAccuracy()));
-		DrawString(0, 25, "Press D to toggle debug drawings");
+		
 
 		// Shooting // put this in the game loop here because it is easier to connect to the bullets vector. should be in player class tbh
 		if (this->GetKey(olc::Key::SPACE).bPressed)
 		{
-			Bullets.push_back(new SpaceObject(player.x, player.y, 50.0f * sinf(player.angle), -50.0f * cosf(player.angle), 0, 0));
-			player.shotsFired++;
+			Bullets.push_back(new SpaceObject(player->x, player->y, 50.0f * sinf(player->angle), -50.0f * cosf(player->angle), 0, 0));
+			player->shotsFired++;
 		}
 
 		// Wrap the player in the screen
-		WrapCoordinates(player.x, player.y, player.x, player.y);
-		// Drawing the player vertices // TODO should probably use DrawTriangle() instead
-		DrawWireFrameModel(player.vertices, player.x, player.y, player.angle);
+		WrapCoordinates(player->x, player->y, player->x, player->y);
+		// Drawing the player vertices
+		DrawWireFrameModel(player->vertices, player->x, player->y, player->angle);
 
 
 		CollidingObjects.clear();
-		// Remaking the quadtree each loop to update the positions
+		// Remaking the quadtree each loop to update the positions // TODO
 		quadtree->Clear();
+
+		
+
 		for (auto a : Asteroids)
 		{
 			quadtree->Insert(a, CollidingObjects);
@@ -90,14 +107,14 @@ public:
 		// Check if player collides with asteroid
 		//for (auto& a : Asteroids)
 		//{
-		//	if (IsPointInsideCirle(a->x, a->y, a->size, player.x, player.y))
+		//	if (IsPointInsideCirle(a->x, a->y, a->size, player->x, player->y))
 		//	{
-		//		//player.Died();
+		//		//player->Died();
 		//	}
 		//}
 
 		// Drawing Bullets and updating position
-		for (auto& b : Bullets)
+		for (auto b : Bullets)
 		{
 			// Update positions
 			b->x += b->vx * fElapsedTime;
@@ -110,7 +127,7 @@ public:
 			{
 				if (IsPointInsideCirle(Asteroids[i]->x, Asteroids[i]->y, Asteroids[i]->size, b->x, b->y))
 				{
-					player.shotsHit++; // had to make it shotsHit because of how the game handles removing bullets
+					player->shotsHit++; // had to make it shotsHit because of how the game handles removing bullets
 					b->x = -100; // remove bullet
 
 					// splits the asteroid if it has not been reduced to a certain size
@@ -146,6 +163,8 @@ public:
 			// TODO level complete
 		}
 
+#pragma region DEBUG_CODE
+
 		if (GetKey(olc::Key::D).bPressed)
 		{
 			bDebugMode = !bDebugMode;
@@ -162,6 +181,8 @@ public:
 			// shows quadtrees and how many objects are in each
 			quadtree->Draw(this);
 		}
+
+#pragma endregion
 
 		return true;
 	}
@@ -195,6 +216,8 @@ public:
 		return sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) < radius;
 	}
 
+
+	// These Functions are from the olcPixelGameEngine youtube channel as part of a tutorial
 	/// <summary>
 	/// Draws an outline wireframe model from a vector of vertices
 	/// </summary>
@@ -206,6 +229,8 @@ public:
 	/// <param name="color"> - color of the wireframe</param>
 	void DrawWireFrameModel(const std::vector<std::pair<float, float>>& vecModelCoordinates, float x, float y, float a = 0.0f, float s = 1.0f, olc::Pixel color = olc::WHITE)
 	{
+		// TODO i dont really know how this function works
+
 		// Create a vector of the newly translated vertices
 		std::vector<std::pair<float, float>> vecTransformedCoordinates;
 		int verts = vecModelCoordinates.size();
@@ -292,15 +317,24 @@ public:
 	/// 
 	/// </summary>
 	void ResetGame()
-	{
+	{ 
+		// TODO find cleaner way to free memory in the vectors
 		// remove all asteroids and bullets
+		for (auto a : Asteroids)
+		{
+			delete a;
+		}
 		Asteroids.clear();
+		for (auto b : Bullets)
+		{
+			delete b;
+		}
 		Bullets.clear();
 		quadtree->Clear();
 
 		// Creates asteroid
 		srand(time(NULL));
-		for (int i = 0; i < 100; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			Asteroid* a = new Asteroid(this);
 			Asteroids.push_back(a);
@@ -308,7 +342,7 @@ public:
 		}
 
 		Score = 0;
-		player.ResetPlayer(this);
+		player->ResetPlayer(this);
 	}
 };
 

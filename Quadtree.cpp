@@ -4,7 +4,7 @@ Quadtree::Quadtree(Rectangle bounds)
 {
 	this->bIsSplit = false;
 	this->bounds = bounds;
-	this->maxObjects = 10;
+	this->maxObjects = 5;
 }
 
 void Quadtree::Split(std::vector<std::pair<SpaceObject*, SpaceObject*>> &collidingObjects)
@@ -113,6 +113,11 @@ void Quadtree::Clear()
 		this->bIsSplit = false;
 	}
 	nodes.clear();
+
+	for (auto o : objects)
+	{
+		//delete o;
+	}
 	objects.clear();
 }
 
@@ -132,4 +137,4 @@ void Quadtree::Draw(olc::PixelGameEngine* instance)
 
 	// draws the bounding box of the quadtree
 	instance->DrawRect(bounds.x, bounds.y, bounds.width, bounds.height);
-} // stack overflow
+}

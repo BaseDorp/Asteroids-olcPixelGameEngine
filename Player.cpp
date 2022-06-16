@@ -2,12 +2,13 @@
 
 Player::Player()
 {
-	std::vector<std::pair<float, float>> verticies =
+	vertices = { {0.0f, -5.0f}, {-2.5f, 2.5f}, {2.5f, 2.5f} };
+	/*std::vector<std::pair<float, float>> verticies =
 	{
 		{0.0f, -5.0f},
 		{-2.5f, 2.5f},
 		{2.5f, 2.5f}
-	};
+	};*/
 	x, y, vx, vy, angle = 0.0f;
 	this->size = 1;
 	shotsFired = 0;

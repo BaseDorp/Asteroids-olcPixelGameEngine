@@ -14,7 +14,7 @@ public:
 	Powerup powerup;
 
 	Player();
-	Player(float x, float y, float vx, float vy, int size, float angle);
+	//Player(float x = 0.0f, float y = 0.0f, float vx = 0.0f, float vy = 0.0f, int size = 0, float angle = 0.0f);
 	void UpdateInput(olc::PixelGameEngine* Instance, float fElapsedTime);
 	void ResetPlayer(olc::PixelGameEngine* instance);
 	float GetAccuracy();
